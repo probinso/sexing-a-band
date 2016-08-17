@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from pony.orm import *
 
 meta_db = Database("sqlite", 'data/track_metadata.db', create_db=False)
@@ -50,13 +52,15 @@ while line[0] == '#':
 lookup = dict(enumerate(line[1:].strip().split(',')))
 invert = {value:key + 1 for key, value in lookup.items()}
 
+filename = 'data/output.csv'
 @db_session
 def main():
-    words = select(e for e in Word)
-    songs = [(s.track_id, s.year) for s in select(e for e in Song if e.year)]
-    for track_id, year in songs:
-        words = ['{}:{}'.format(invert[w.word], c) for w, c in select((e.word, e.count) for e in Lyrics if e.track_id == track_id)]
-        if words:
-            print(','.join([track_id, str(year), ','.join(words)]))
+    with open(filename, 'w') as fd:
+        words = select(e for e in Word)
+        songs = [(s.track_id, s.year) for s in select(e for e in Song if e.year)]
+        for track_id, year in songs:
+            words = ['{}:{}'.format(invert[w.word], c) for w, c in select((e.word, e.count) for e in Lyrics if e.track_id == track_id)]
+            if words:
+                print(','.join([track_id, str(year), ','.join(words)]), file=fd)
 
 main()

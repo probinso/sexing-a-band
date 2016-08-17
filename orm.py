@@ -59,7 +59,10 @@ def main():
         words = select(e for e in Word)
         songs = [(s.track_id, s.year) for s in select(e for e in Song if e.year)]
         for track_id, year in songs:
-            words = ['{}:{}'.format(invert[w.word], c) for w, c in select((e.word, e.count) for e in Lyrics if e.track_id == track_id)]
+            try: 
+                words = ['{}:{}'.format(invert[w.word], c) for w, c in select((e.word, e.count) for e in Lyrics if e.track_id == track_id)]
+            except Exception:
+                continue     
             if words:
                 print(','.join([track_id, str(year), ','.join(words)]), file=fd)
 

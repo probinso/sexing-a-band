@@ -41,16 +41,25 @@ class Lyrics(word_db.Entity):
 sql_debug(False)
 word_db.generate_mapping()
 
+fd = open('./data/mxm_dataset_train.txt')
+line = '#'
+it = iter(fd)
+while line[0] == '#':
+    line = next(it)
+
+lookup = dict(enumerate(line[1:].strip().split(',')))
+invert = {value:key + 1 for key, value in lookup.items()}
 
 @db_session
 def main():
     words = select(e for e in Word)
     songs = [(s.track_id, s.year) for s in select(e for e in Song if e.year)]
     for track_id, year in songs:
-        words = [(w.word, c) for w, c in select((e.word, e.count) for e in Lyrics if e.track_id == track_id)]
+        words = [(invert[w.word], c) for w, c in select((e.word, e.count) for e in Lyrics if e.track_id == track_id)]
         d     = ','.join(['{}:{}'.format(*w) for w in words])
         if d:
             print(','.join([track_id, str(year), d]))
+
 
 
 main()

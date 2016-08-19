@@ -35,3 +35,4 @@ for index, topic in lsi.print_topics(num_topics=10, num_words = 3):
     print(index)
     print("  " + topic)
 
+lsi.save('./data/song_topics.lsi')

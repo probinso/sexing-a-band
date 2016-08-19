@@ -3,16 +3,16 @@ from __future__ import print_function
 import csv
 import gensim
 
-fd = open('./data/mxm_dataset_train.txt')
-line = '#'
-it = iter(fd)
-while line[0] == '#':
-    line = next(it)
-
 DUMP_SIZE = 1000
 
-raw = list(enumerate(line[1:].strip().split(','),1))
-# original = {value: key for key, value in raw}
+with open('./data/mxm_dataset_train.txt') as fd:
+    line = '#'
+    it = iter(fd)
+    while line[0] == '#':
+        line = next(it)
+
+    raw = list(enumerate(line[1:].strip().split(','),1))
+
 dump, keep = raw[:DUMP_SIZE], raw[DUMP_SIZE:]
 
 lookup = {k - DUMP_SIZE : v for k, v in keep}
@@ -24,7 +24,7 @@ test document wrt topic and histogram on year
 """
 
 corpus = []
-with open("./data/output.csv"):
+with open("./data/output.csv") as fd:
     for line in csv.reader(fd):
         document = map(lambda s: map(int, str.split(s, ':')), line[2:])
 

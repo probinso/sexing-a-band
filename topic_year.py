@@ -34,11 +34,14 @@ with open("./data/output.csv") as fd:
         _ = map(lambda s: map(int, str.split(s, ':')), line[2:])
         document = filter(lambda x : x[0] < DUMP_SIZE + 1, _)
 
-        topics = sorted(lsi[document], key=lambda x: x[1], reverse=True)[:10]
+        topics = sorted(lsi[document], key=lambda x: x[1], reverse=True)[:5]
+        print(topics)
+        #exit()
         for t in topics:
             d[year].append(t[0])
 
-for i in sorted(d):
-    print(i)
-    print("  ", sorted(d[i]))
+from collections import Counter
+for year in sorted(d):
+    print(year)
+    print("  ", Counter(d[year]))
     print()

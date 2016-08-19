@@ -3,7 +3,7 @@ from __future__ import print_function
 import csv
 import gensim
 
-DUMP_SIZE = 1000
+from constants import DUMP_SIZE
 
 with open('./data/mxm_dataset_train.txt') as fd:
     line = '#'
@@ -35,4 +35,4 @@ for index, topic in lsi.print_topics(num_topics=10, num_words = 3):
     print(index)
     print("  " + topic)
 
-lsi.save('./data/song_topics.lsi')
+lsi.save('./song_topics.lsi')

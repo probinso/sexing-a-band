@@ -5,15 +5,15 @@ import csv
 
 print(gensim.__file__)
 
+from constants import DUMP_SIZE
+
 lsi = gensim.models.LsiModel.load('./song_topics.lsi')
-DUMP_SIZE = 1000
 
 with open('./data/mxm_dataset_train.txt') as fd:
     line = '#'
     it = iter(fd)
     while line[0] == '#':
         line = next(it)
-
 
     raw = list(enumerate(line[1:].strip().split(','),1))
 

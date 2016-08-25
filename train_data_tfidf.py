@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import csv
 import gensim
 
@@ -11,7 +13,6 @@ filename = 'data/output_tfidf.csv'
 output_songs = []
 
 with open(filename, 'w') as out_file:
-    writer = csv.writer(out_file)
 
     with open("./data/output.csv") as fd:
         for line in csv.reader(fd):
@@ -20,10 +21,8 @@ with open(filename, 'w') as out_file:
             song_lsi_vec = lsi[song_tfidf]
             date_class = (int(line[1]) - 1900) // 10
 
-            output_songs.append([line[0], line[1], date_class, song_lsi_vec])
+            topic_vec = ['{}:{}'.format(item[0], item[1]) for item in song_lsi_vec]
 
-    writer.writerows(output_songs)
-
-# This took quite a while to run and has a list of tuples converted to a string as the last value
-# for each song. I'm wondering if there is a better/faster format to write it to a csv. 
+            print(','.join([line[0], line[1], str(date_class), ','.join(topic_vec)]), file=out_file)
+ 
         

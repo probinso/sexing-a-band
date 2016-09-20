@@ -3,8 +3,6 @@ from __future__ import print_function
 import csv
 import gensim
 
-# DUMP_SIZE = 1000
-
 with open('./data/mxm_dataset_train.txt') as fd:
     line = '#'
     it = iter(fd)
@@ -15,10 +13,7 @@ with open('./data/mxm_dataset_train.txt') as fd:
 
 lookup = {k : v for k, v in raw}
 
-"""
-create topic model
-test document wrt topic and histogram on year
-"""
+# ---------------------------------------------------------------
 
 corpus = []
 with open("./data/output.csv") as fd:

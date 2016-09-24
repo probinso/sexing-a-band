@@ -52,18 +52,52 @@ while line[0] == '#':
 lookup = dict(enumerate(line[1:].strip().split(',')))
 invert = {value:key + 1 for key, value in lookup.items()}
 
-filename = 'data/output.csv'
+# changed to output_test to figure out missing songs  
+filename = 'data/output_test.csv'
+
 @db_session
 def main():
     with open(filename, 'w') as fd:
-        words = select(e for e in Word)
-        songs = [(s.track_id, s.year) for s in select(e for e in Song if e.year)]
-        for track_id, year in songs:
+        # Using a slice to grab all objects out of the generator object returned 
+        words = select(e for e in Word)[:]
+
+# --------------------------------------------------------------------------------------
+# This block looks for the 171 bad key/value pairs in our lookup dict. For whatever reason it is throwing a key error
+# anytime it looks up one of these values with: invert[item.word]. I noticed all the strings have '\' in them 
+# I'm wondering if this is being counted as an escape character and causing the dict to throw a key error on lookup.
+
+        error_strs = []
+        bad_lookups = 0
+        good_lookups = 0 
+
+        for idx, item in enumerate(words):
             try: 
-                words = ['{}:{}'.format(invert[w.word], c) for w, c in select((e.word, e.count) for e in Lyrics if e.track_id == track_id)]
+                print("item.word: {}, invert[item.word]: {}".format(item.word, invert[item.word]))
+                good_lookups += 1
             except Exception:
-                continue     
-            if words:
-                print(','.join([track_id, str(year), ','.join(words)]), file=fd)
+                bad_lookups += 1
+                error_strs.append((idx, item.word))
+                continue
+
+        print("Num good: {}, Num bad: {}".format(good_lookups, bad_lookups))
+        print(error_strs)
+
+        # used to check for lookup error 
+        # print(invert['pr\xe8s'])
+
+# ---------------------------------------------------------------------------------------------------   
+# code below used to grab all our songs and their years from meta_db and lyrics_db  
+
+        # songs = [(s.track_id, s.year) for s in select(e for e in Song if e.year)]
+
+        # for track_id, year in songs:
+        #     try: 
+        #         words = ['{}:{}'.format(invert[w.word], c) for w, c in select((e.word, e.count) for e in Lyrics if e.track_id == track_id)]
+           
+        #     except Exception:
+        #         continue  
+
+        #     if words:
+        #         print(','.join([track_id, str(year), ','.join(words)]), file=fd)
 
 main()

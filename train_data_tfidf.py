@@ -21,7 +21,7 @@ with open(filename, 'w') as out_file:
             song_lsi_vec = lsi[song_tfidf]
             date_class = (int(line[1]) - 1900) // 10
 
-            topic_vec = ['{}:{}'.format(item[0], item[1]) for item in song_lsi_vec]
+            topic_vec = ['{}:{}'.format(item[0], (item[1])) for item in song_lsi_vec]
 
             print(','.join([line[0], line[1], str(date_class), ','.join(topic_vec)]), file=out_file)
  

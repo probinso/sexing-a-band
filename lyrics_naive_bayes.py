@@ -1,7 +1,9 @@
 import csv
 from collections import defaultdict
 
-from sklearn.naive_bayes import GaussianNB
+#from sklearn.naive_bayes import MultinomialNB
+from sklearn.ensemble import RandomForestClassifier
+
 
 import numpy as np
 from sklearn.cross_validation import train_test_split
@@ -16,17 +18,30 @@ with open("./data/output_tfidf.csv") as fd:
         X.append([item[1] for item in document])
         y.append(line[2])
 
-print len(X)
-print len(y)
+print('num of data samples: {}'.format(len(X)))
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=5)
 
-clf = GaussianNB()
-clf.fit(X_train, y_train)
+# clf = MultinomialNB(fit_prior=True)
+# clf.fit(X_train, y_train)
 
-score = clf.score(X_test, y_test)
+# score = clf.score(X_test, y_test)
 
-print score 
+# print("NB score: {}".format(score))
+
+t_samples = 152827
+class_prob = {'11': 1391/t_samples, '10': 84769/t_samples, '3': 39/t_samples, '2': 37/t_samples,
+    '5': 634/t_samples, '4': 73/t_samples, '7': 7965/t_samples, '6': 3235/t_samples, 
+    '9': 39516/t_samples, '8': 15178/t_samples}
+
+
+forest = RandomForestClassifier(n_estimators=10, min_samples_leaf=10, random_state=50)
+forest.fit(X_train, y_train)
+
+forest_score = forest.score(X_test, y_test)
+
+print("forest score: {}".format(forest_score))
+
 
 #-----------------------------------------------------------------------------
 # looking at distrobution of decades in data 
@@ -42,6 +57,11 @@ print score
 #[('11', 1391), ('10', 84769), ('3', 39), ('2', 37), ('5', 624), ('4', 73), 
 #('7', 7965), ('6', 3235), ('9', 39516), ('8', 15178)]
 
-# 152827 
+# 152827 - total samples  
+
+#Dict of class wieghts 
+# {11: 1391/t_samples, 10: 84769/t_samples, 3: 39/t_samples, 2: 37/t_samples,
+#  5: 634/t_samples, 4: 73/t_samples, 7: 7965/t_samples, 6: 3235/t_samples, 
+#  9: 39516/t_samples, 8: 15178/t_samples}
 #-----------------------------------------------------------------------------
 

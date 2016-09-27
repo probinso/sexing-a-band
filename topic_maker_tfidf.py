@@ -23,13 +23,13 @@ with open("./data/output.csv") as fd:
         corpus.append(document)
 
 tfidf_model = gensim.models.TfidfModel(corpus, normalize=True)
+tfidf_model.save("./tfidf_model.tfidf")
 
-# tfidf_model.save("./tfidf_model.tfidf")
 tfidf_corpus = []
 for item in corpus: 
     tfidf_corpus.append(tfidf_model[item])
     
-lsi = gensim.models.lsimodel.LsiModel(tfidf_corpus, num_topics=300, id2word=lookup)
+lsi = gensim.models.lsimodel.LsiModel(tfidf_corpus, num_topics=50, id2word=lookup)
 for index, topic in lsi.print_topics(num_topics=10, num_words = 3):
     print(index)
     print("  " + topic)

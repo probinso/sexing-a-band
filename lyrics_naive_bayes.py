@@ -11,7 +11,7 @@ from sklearn.cross_validation import train_test_split
 X = []
 y = []
 
-with open("./data/output_tfidf.csv") as fd:
+with open("./data/full_output_tfidf.csv") as fd:
     for line in csv.reader(fd):    
         document = map(lambda s: map(float, str.split(s, ':')), line[3:])
 
@@ -29,13 +29,13 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random
 
 # print("NB score: {}".format(score))
 
-t_samples = 152827
-class_prob = {'11': 1391/t_samples, '10': 84769/t_samples, '3': 39/t_samples, '2': 37/t_samples,
-    '5': 634/t_samples, '4': 73/t_samples, '7': 7965/t_samples, '6': 3235/t_samples, 
-    '9': 39516/t_samples, '8': 15178/t_samples}
+t_samples = 175234
+class_prob = {'11': 1592/t_samples, '10': 98614/t_samples, '3': 40/t_samples, '2': 38/t_samples,
+    '5': 711/t_samples, '4': 75/t_samples, '7': 8784/t_samples, '6': 3464/t_samples, 
+    '9': 44913/t_samples, '8': 17003/t_samples}
 
 
-forest = RandomForestClassifier(n_estimators=10, min_samples_leaf=10, random_state=50)
+forest = RandomForestClassifier(n_estimators=10, min_samples_leaf=10, random_state=50, class_weight=class_prob)
 forest.fit(X_train, y_train)
 
 forest_score = forest.score(X_test, y_test)
@@ -54,14 +54,14 @@ print("forest score: {}".format(forest_score))
 # print(decades.items()) 
 
 # output from above: 
-#[('11', 1391), ('10', 84769), ('3', 39), ('2', 37), ('5', 624), ('4', 73), 
-#('7', 7965), ('6', 3235), ('9', 39516), ('8', 15178)]
+# [('11', 1592), ('10', 98614), ('3', 40), ('2', 38), ('5', 711), ('4', 75), 
+# ('7', 8784), ('6', 3464), ('9', 44913), ('8', 17003)]
 
-# 152827 - total samples  
+# 175234 - total samples  
 
 #Dict of class wieghts 
-# {11: 1391/t_samples, 10: 84769/t_samples, 3: 39/t_samples, 2: 37/t_samples,
-#  5: 634/t_samples, 4: 73/t_samples, 7: 7965/t_samples, 6: 3235/t_samples, 
-#  9: 39516/t_samples, 8: 15178/t_samples}
+# class_prob = {'11': 1592/t_samples, '10': 98614/t_samples, '3': 40/t_samples, '2': 38/t_samples,
+#     '5': 711/t_samples, '4': 75/t_samples, '7': 8784/t_samples, '6': 3464/t_samples, 
+#     '9': 44913/t_samples, '8': 17003/t_samples}
 #-----------------------------------------------------------------------------
 

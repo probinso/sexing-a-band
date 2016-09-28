@@ -16,14 +16,14 @@ lookup = {k : v for k, v in raw}
 # ---------------------------------------------------------------
 
 corpus = []
-with open("./data/output.csv") as fd:
+with open("./data/full_output.csv") as fd:
     for line in csv.reader(fd):
-        document = map(lambda s: map(int, str.split(s, ':')), line[2:])
+        document = map(lambda s: map(int, str.split(s, ':')), line[3:])
 
         corpus.append(document)
 
 tfidf_model = gensim.models.TfidfModel(corpus, normalize=True)
-tfidf_model.save("./tfidf_model.tfidf")
+tfidf_model.save("./full_tfidf_model.tfidf")
 
 tfidf_corpus = []
 for item in corpus: 
@@ -34,4 +34,4 @@ for index, topic in lsi.print_topics(num_topics=10, num_words = 3):
     print(index)
     print("  " + topic)
 
-lsi.save('./data/song_topics_tfidif.lsi')
+lsi.save('./data/full_song_topics_tfidif.lsi')

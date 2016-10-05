@@ -1,6 +1,13 @@
 # sexing-a-band
 aging-a-band
 
+1. `soung_data_prep.py` generates **data/full_output.csv** containing **track_id**, **artist_id**, **track_year**, **word_counts**
+2. `topic_maker_tfidf.py` processes over **data/full_output.csv** and **mxm_dataset_train.csv** and saves the 
+    * **tfidf** to **full_tfidf_model.tfidf**
+    * **sli model** to **data/full_song_topics_tfidif.lsi**
+3. `train_data_tfidf.py` loads the above two model files, then steps through **data/full_output.csv** to produce **full_output_tfidf.csv**
+---
+
 Team: Vikingkitty; Zak Kent; Probiso
 
 Using the databases listed below to predict the year in which a song was written based on a LSI model.

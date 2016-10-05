@@ -6,6 +6,7 @@ aging-a-band
     * **tfidf** to **full_tfidf_model.tfidf**
     * **sli model** to **data/full_song_topics_tfidif.lsi**
 3. `train_data_tfidf.py` loads the above two model files, then steps through **data/full_output.csv** to produce **full_output_tfidf.csv**
+
 ---
 
 Team: Vikingkitty; Zak Kent; Probiso

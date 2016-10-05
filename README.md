@@ -1,5 +1,5 @@
 # sexing-a-band
-aging-a-band
+# aging-a-band
 
 1. `soung_data_prep.py` generates **data/full_output.csv** containing **track_id**, **artist_id**, **track_year**, **word_counts**
 2. `topic_maker_tfidf.py` processes over **data/full_output.csv** and **mxm_dataset_train.csv** and saves the 

@@ -1,7 +1,7 @@
 
 import csv
 from keras import backend as K
-from keras.layers import Desnse 
+from keras.layers import Dense 
 from keras.objectives import categorical_crossentropy 
 from keras.metrics import categorical_accuracy as accuracy
 
@@ -36,8 +36,6 @@ def chunker(data, size):
 
 train_data_50 = chunker(train_data, 50)
 
-print(len(test))
-
 # -----------------------------------------------------------------------------------
 # starts tensorflow session with keras backend
 sess = tf.Session()
@@ -47,8 +45,8 @@ K.set_session(sess)
 songs = tf.placeholder(tf.float32, [None, 50])
 
 # Keras layers that get called on by tensorflow tensors: 
-x = Dense(128, activation='relu')(songs)
-x = Dense(128, activation='relu')(x)
+x = Dense(30, activation='relu')(songs)
+x = Dense(30, activation='relu')(x)
 preds = Dense(10, activation='softmax')(x) # output layer 
 
 labels = tf.placeholder(tf.float32, shape=(None, 10))
@@ -58,20 +56,27 @@ loss = tf.reduce_mean(categorical_crossentropy(labels, preds))
 train_step = tf.train.GradientDescentOptimizer(0.5).minimize(loss)
 
 with sess.as_default():
-    for block in train_data_50:
-        batch_xs = []
-        batch_ys = []
+    for idx in range(10):
+        block = train_data_50[idx]
 
-        for item in block: 
-            batch_xs.append(item[0])
-            batch_ys.append(item[1])
+        batch_xs = [part[0] for part in block]
+        batch_ys = [part[1] for part in block]
 
         train_step.run(feed_dict={songs: batch_xs,
                                   labels: batch_ys})
 
-        # need to reset batch lists 
-        batch_xs = []
-        batch_ys = []
+# -----------------------------------------------------------------------------------
+
+acc_value = accuracy(labels, preds)
+with sess.as_default():
+    test_block = test_data[-1000:] 
+
+    batch_xs = [part[0] for part in test_block]
+    batch_ys = [part[1] for part in test_block]
+
+    print(acc_value.eval(feed_dict={songs: batch_xs,
+                                  labels: batch_ys}))
+
 
 
 

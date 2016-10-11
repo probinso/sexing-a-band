@@ -55,8 +55,9 @@ loss = tf.reduce_mean(categorical_crossentropy(labels, preds))
 
 train_step = tf.train.GradientDescentOptimizer(0.5).minimize(loss)
 
+print(K.learning_phase())
 with sess.as_default():
-    for idx in range(10):
+    for idx in range(len(train_data_50)):
         block = train_data_50[idx]
 
         batch_xs = [part[0] for part in block]
@@ -64,12 +65,11 @@ with sess.as_default():
 
         train_step.run(feed_dict={songs: batch_xs,
                                   labels: batch_ys})
-
 # -----------------------------------------------------------------------------------
 
 acc_value = accuracy(labels, preds)
 with sess.as_default():
-    test_block = test_data[-1000:] 
+    test_block = test_data[:] 
 
     batch_xs = [part[0] for part in test_block]
     batch_ys = [part[1] for part in test_block]

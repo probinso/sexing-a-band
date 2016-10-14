@@ -34,7 +34,7 @@ with open("./data/output.csv") as fd:
         _ = map(lambda s: map(int, str.split(s, ':')), line[2:])
         document = filter(lambda x : x[0] < DUMP_SIZE + 1, _)
 
-        topics = sorted(lsi[document], key=lambda x: x[1], reverse=True)[:5]
+        topics = sorted(lsi[document], key=lambda x: x[1], reverse=True)
         print(topics)
         #exit()
         for t in topics:

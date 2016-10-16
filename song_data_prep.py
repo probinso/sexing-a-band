@@ -51,8 +51,8 @@ def song_year_finder(track_id):
 
 def main(): 
     with open(output_file, 'a') as fd:
-        #csv_song_writer(train_file, fd)
-        #csv_song_writer(test_file, fd)
+        csv_song_writer(train_file, fd)
+        csv_song_writer(test_file, fd)
 main()
 
 conn_tmdb.close()

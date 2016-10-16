@@ -1,4 +1,5 @@
 import csv
+from collections import defaultdict
 import numpy as np 
 
 from scipy.sparse import lil_matrix
@@ -10,9 +11,9 @@ def get_data():
     """grab data from csv and break into [X, y] list items"""
     song_data = []
     with open("./data/only_tfidf.csv") as fd:
-        for line in csv.reader(fd):    
-            # document = map(lambda s: map(float, str.split(s, ':')), line[3:])
-            document = [item.split(':') for item in line[3:]]        
+        for line in csv.reader(fd):
+            # ********* might be a way to make this split/dict convertion better ********    
+            document = [item.split(':') for item in line[3:]]
             X = dict([[int(item[0]), float(item[1])] for item in document])
             y = int(line[2]) - 2
             
@@ -65,20 +66,35 @@ def score(test_data):
 
     print("NB score: {}".format(score))
 
+    # --------------------------------------------------
+    # look at what values model is predicting 
+    predictions = defaultdict(int)
+
+    for item in new:
+        model_out = clf.predict(item)
+        predictions[model_out[0] + 2] += 1
+
+    print(predictions)
+
+    # --------------------------------------------------
+    # results from above 
+    # NB score: 0.566221235211
+    # defaultdict(<type 'int'>, {8: 7, 9: 3491, 10: 48580, 5: 85, 7: 71})
+
 
 if __name__ == '__main__':
     # get song data from csv 
     song_data = get_data()
 
     # spliting train/test 
-    train_data = song_data[:500]
-    test_data = song_data[500:550]
+    train_data = song_data[:123000]
+    test_data = song_data[123000:]
 
     # chunk data into an array of 50 long examples  
     train_data_50 = chunker(train_data, 50)
 
     # setup global NB model 
-    clf = MultinomialNB(fit_prior=True)
+    clf = MultinomialNB()
 
     # train NB using partial fit 
     run_NB(train_data_50)

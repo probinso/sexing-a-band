@@ -2,3 +2,4 @@ pandas
 pony
 gensim
 scikit-learn
+imbalanced-learn 

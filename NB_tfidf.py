@@ -6,6 +6,8 @@ from scipy.sparse import lil_matrix
 from sklearn.cross_validation import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 
+from imblearn.over_sampling import ADASYN
+
 
 def get_data():
     """grab data from csv and break into [X, y] list items"""
@@ -44,14 +46,22 @@ def run_NB(train_data_50):
     """runs NB on chuncked data using partial_fit"""
     classes = range(11)
 
+    ada = ADASYN(random_state=42)
+
     for idx in range(len(train_data_50)):
         data = train_data_50[idx]
+
         X_data = [item[0] for item in data]
         y_data = np.array([item[1] for item in data])
 
-        new = matrix_func(X_data)
+        print('length of X before resample: {}, length y: {}'.format(len(X_data), y_data.shape))
+        X_res, y_res = ada.fit_sample(X_data, y_data)
 
-        clf.partial_fit(new, y_data, classes=classes)
+        new = matrix_func(X_res)
+
+        print('length after over_sampling! new_X: {}, new_y: {}'.format(new.shape, y_res.shape))
+
+        clf.partial_fit(new, y_res, classes=classes)
 
 
 def score(test_data):
@@ -75,11 +85,17 @@ def score(test_data):
         predictions[model_out[0] + 2] += 1
 
     print(predictions)
-
     # --------------------------------------------------
     # results from above 
     # NB score: 0.566221235211
     # defaultdict(<type 'int'>, {8: 7, 9: 3491, 10: 48580, 5: 85, 7: 71})
+
+    # --------------------------------------------------
+    # predict the probabilites for each category being selected 
+    for item in new:
+        model_out = clf.predict_proba(item)
+        print(model_out)
+    # --------------------------------------------------
 
 
 if __name__ == '__main__':
@@ -87,14 +103,15 @@ if __name__ == '__main__':
     song_data = get_data()
 
     # spliting train/test 
-    train_data = song_data[:123000]
-    test_data = song_data[123000:]
+    train_data = song_data[:500]
+    test_data = song_data[500:530]
 
     # chunk data into an array of 50 long examples  
     train_data_50 = chunker(train_data, 50)
 
     # setup global NB model 
     clf = MultinomialNB()
+    # clf.set_params()
 
     # train NB using partial fit 
     run_NB(train_data_50)

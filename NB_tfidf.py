@@ -54,14 +54,14 @@ def run_NB(train_data_50):
         X_data = [item[0] for item in data]
         y_data = np.array([item[1] for item in data])
 
-        print('length of X before resample: {}, length y: {}'.format(len(X_data), y_data.shape))
-        X_res, y_res = ada.fit_sample(X_data, y_data)
+        new = matrix_func(X_data)
 
-        new = matrix_func(X_res)
+        print('length of X before resample: {}, length y: {}'.format(len(new), y_data.shape))
+        X_res, y_res = ada.fit_sample(new, y_data)
 
         print('length after over_sampling! new_X: {}, new_y: {}'.format(new.shape, y_res.shape))
 
-        clf.partial_fit(new, y_res, classes=classes)
+        clf.partial_fit(X_res, y_res, classes=classes)
 
 
 def score(test_data):

@@ -56,10 +56,11 @@ def run_NB(train_data_50):
 
         new = matrix_func(X_data)
 
-        print('length of X before resample: {}, length y: {}'.format(len(new), y_data.shape))
-        X_res, y_res = ada.fit_sample(new, y_data)
+        #print('length of X before resample: {}, length y: {}'.format(len(new), y_data.shape))
+        X_res, y_res = ada.fit_sample(new.toarray(), y_data)
+        X_res = matrix_func(X_res)
 
-        print('length after over_sampling! new_X: {}, new_y: {}'.format(new.shape, y_res.shape))
+        print('length after over_sampling! new_X: {}, new_y: {}'.format(X_res.shape, y_res.shape))
 
         clf.partial_fit(X_res, y_res, classes=classes)
 

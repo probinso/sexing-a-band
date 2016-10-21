@@ -1,2 +1,4 @@
 data/*
 *~
+v.env/*
+__pycache__/*

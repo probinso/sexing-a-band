@@ -3,3 +3,7 @@ pony
 gensim
 scikit-learn
 imbalanced-learn 
+requests
+bs4
+pyenchant
+

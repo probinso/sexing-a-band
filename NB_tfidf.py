@@ -6,7 +6,7 @@ from scipy.sparse import lil_matrix
 from sklearn.cross_validation import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 
-from imblearn.over_sampling import ADASYN
+from imblearn.over_sampling import RandomOverSampler
 
 
 def get_data():
@@ -46,7 +46,7 @@ def run_NB(train_data_50):
     """runs NB on chuncked data using partial_fit"""
     classes = range(11)
 
-    ada = ADASYN(random_state=42)
+    ros = RandomOverSampler(random_state=42)
 
     for idx in range(len(train_data_50)):
         data = train_data_50[idx]
@@ -56,10 +56,12 @@ def run_NB(train_data_50):
 
         new = matrix_func(X_data)
 
-        print('length of X before resample: {}, length y: {}'.format(len(new), y_data.shape))
-        X_res, y_res = ada.fit_sample(new, y_data)
+        # print('length of X before resample: {}, length y: {}'.format(len(new), y_data.shape))
+        X_res, y_res = ros.fit_sample(new.toarray(), y_data)
 
-        print('length after over_sampling! new_X: {}, new_y: {}'.format(new.shape, y_res.shape))
+        # X_res = matrix_func(X_res)
+
+        # print('length after over_sampling! new_X: {}, new_y: {}'.format(X_res.shape, y_res.shape))
 
         clf.partial_fit(X_res, y_res, classes=classes)
 
@@ -85,16 +87,16 @@ def score(test_data):
         predictions[model_out[0] + 2] += 1
 
     print(predictions)
-    # --------------------------------------------------
-    # results from above 
-    # NB score: 0.566221235211
-    # defaultdict(<type 'int'>, {8: 7, 9: 3491, 10: 48580, 5: 85, 7: 71})
+    # # --------------------------------------------------
+    # # results from above 
+    # # NB score: 0.566221235211
+    # # defaultdict(<type 'int'>, {8: 7, 9: 3491, 10: 48580, 5: 85, 7: 71})
 
-    # --------------------------------------------------
-    # predict the probabilites for each category being selected 
-    for item in new:
-        model_out = clf.predict_proba(item)
-        print(model_out)
+    # # --------------------------------------------------
+    # # predict the probabilites for each category being selected 
+    # for item in new:
+    #     model_out = clf.predict_proba(item)
+    #     print(model_out)
     # --------------------------------------------------
 
 
@@ -103,8 +105,8 @@ if __name__ == '__main__':
     song_data = get_data()
 
     # spliting train/test 
-    train_data = song_data[:500]
-    test_data = song_data[500:530]
+    train_data = song_data[:123000]
+    test_data = song_data[123000:]
 
     # chunk data into an array of 50 long examples  
     train_data_50 = chunker(train_data, 50)

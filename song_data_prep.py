@@ -49,11 +49,20 @@ def song_year_finder(track_id):
 
     return track_year
 
-def main(): 
-    with open(output_file, 'a') as fd:
-        csv_song_writer(train_file, fd)
-        csv_song_writer(test_file, fd)
-main()
+# def main(): 
+#     with open(output_file, 'a') as fd:
+#         csv_song_writer(train_file, fd)
+#         csv_song_writer(test_file, fd)
+# main()
+
+def data_base():
+    sql_state = "SELECT artist_id from songs limit 3;"
+
+    song = cur.execute(sql_state,).fetchall()
+    print(song)
+data_base()
+
+
 
 conn_tmdb.close()
 

@@ -4,9 +4,9 @@ import csv
 
 # Import all the sources modules
 from lyrico_sources.lyric_wikia    import donwload_from_lyric_wikia as wikia
-from lyrico_sources.lyrics_n_music import donwload_from_lnm         as lnm
-from lyrico_sources.az_lyrics      import donwload_from_az_lyrics   as az
-from lyrico_sources.musix_match    import donwload_from_musix_match as mm
+#from lyrico_sources.lyrics_n_music import donwload_from_lnm         as lnm
+#from lyrico_sources.az_lyrics      import donwload_from_az_lyrics   as az
+#from lyrico_sources.musix_match    import donwload_from_musix_match as mm
 from lyrico_sources.lyricsmode     import donwload_from_lyricsmode  as lm
 
 from lyrics_to_bow import lyrics_to_bow
@@ -16,7 +16,7 @@ from random import shuffle
 from collections import defaultdict
 
 class Song:
-    sources = [wikia, lnm, az, mm, lm]
+    sources = [wikia, lm]
     scores  = defaultdict(int)
     def __init__(self, year, ident, artist, title):
         self.year    = year
@@ -43,18 +43,29 @@ class Song:
 
 import csv
 def test():
-    with open("/media/terra/UndecidedTeam/tracks_per_year.txt") as fd:
-        with open("/media/terra/UndecidedTeam/bow_runner.csv", 'w') as gd:
-            w = csv.writer(gd)
+    with open("/media/terra/UndecidedTeam/tracks_per_year.txt") as search_tracks:
+        in_iter = iter(search_tracks)
+        with open("/media/terra/UndecidedTeam/bow_runner.csv", 'a') as bag_of_words:
+            w = csv.writer(bag_of_words)
+            with open('/media/terra/UndecidedTeam/processed.txt') as processed:
+                for skip in processed:
+                    _ = next(in_iter)
+                    print('*')
 
-            for line in fd:
-                song = Song(*line.strip().split('<SEP>'))
-                song.download_lyrics()
-                if song.bow:
-                    bow  = [':'.join([str(word), str(song.bow[word])]) for word in song.bow]
-                    meta = [song.year, song.title, song.artist]
-                    w.writerow(meta + bow)
-                print(song.scores)
+            with open('/media/terra/UndecidedTeam/processed.txt', 'a') as processed:
+                p = csv.writer(processed)
+                for read in in_iter:
+                    year, ident, artist, title = read.strip().split('<SEP>')
+
+                    song = Song(year, ident, artist, title)
+                    song.download_lyrics()
+                    succ = bool(song.bow)
+                    if succ:
+                        bow  = [':'.join([str(word), str(song.bow[word])]) for word in song.bow]
+                        meta = [song.year, song.title, song.artist]
+                        w.writerow(meta + bow)
+                    p.writerow([year, ident, artist, title, succ])
+                    print(song.scores)
 
     with open("scores.txt", 'wb') as fd:
         for i in Song.scores:

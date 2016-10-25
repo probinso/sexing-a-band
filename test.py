@@ -50,7 +50,6 @@ def test():
             with open('/media/terra/UndecidedTeam/processed.txt') as processed:
                 for skip in processed:
                     _ = next(in_iter)
-                    print('*')
 
             with open('/media/terra/UndecidedTeam/processed.txt', 'a') as processed:
                 p = csv.writer(processed)
@@ -66,6 +65,8 @@ def test():
                         w.writerow(meta + bow)
                     p.writerow([year, ident, artist, title, succ])
                     print(song.scores)
+                    processed.flush()
+                    bag_of_words.flush()
 
     with open("scores.txt", 'wb') as fd:
         for i in Song.scores:

@@ -27,6 +27,20 @@ def chunker(data, size):
     """chunk data into 50 element lists for batch training"""
     return ([data[pos:pos + size] for pos in xrange(0, len(data), size)])
 
+def oversample_data(data):
+    """helper func to oversample data"""
+    ros = RandomOverSampler(random_state=42)
+
+    X_data = [item[0] for item in data]
+    y_data = np.array([item[1] for item in data])
+
+    new = matrix_func(X_data)
+
+    X_res, y_res = ros.fit_sample(new.toarray(), y_data)
+    print('length after over_sampling! new_X: {}, new_y: {}'.format(X_res.shape, y_res.shape))
+
+    return X_res, y_res
+
 
 def matrix_func(a_list):
     """take a list of dicts and return a sparse lil_matrix"""
@@ -46,34 +60,20 @@ def run_NB(train_data_50):
     """runs NB on chuncked data using partial_fit"""
     classes = range(11)
 
-    ros = RandomOverSampler(random_state=42)
-
     for idx in range(len(train_data_50)):
         data = train_data_50[idx]
 
-        X_data = [item[0] for item in data]
-        y_data = np.array([item[1] for item in data])
-
-        new = matrix_func(X_data)
-
-        #print('length of X before resample: {}, length y: {}'.format(len(new), y_data.shape))
-        X_res, y_res = ada.fit_sample(new.toarray(), y_data)
-        X_res = matrix_func(X_res)
-
-        print('length after over_sampling! new_X: {}, new_y: {}'.format(X_res.shape, y_res.shape))
+        X_res, y_res = oversample_data(data)
 
         clf.partial_fit(X_res, y_res, classes=classes)
 
 
 def score(test_data):
     """score the model being trained"""
-    # need to break out test data same as above 
-    X_test = [item[0] for item in test_data]
-    y_test = [item[1] for item in test_data]
+    # oversample & break up data 
+    X_res, y_res = oversample_data(test_data)
 
-    new = matrix_func(X_test)
-
-    score = clf.score(new, y_test)
+    score = clf.score(X_res, y_res)
 
     print("NB score: {}".format(score))
 
@@ -81,22 +81,16 @@ def score(test_data):
     # look at what values model is predicting 
     predictions = defaultdict(int)
 
-    for item in new:
+    for item in X_res:
         model_out = clf.predict(item)
         predictions[model_out[0] + 2] += 1
 
     print(predictions)
+    print("NB score: {}".format(score))
     # # --------------------------------------------------
     # # results from above 
     # # NB score: 0.566221235211
     # # defaultdict(<type 'int'>, {8: 7, 9: 3491, 10: 48580, 5: 85, 7: 71})
-
-    # # --------------------------------------------------
-    # # predict the probabilites for each category being selected 
-    # for item in new:
-    #     model_out = clf.predict_proba(item)
-    #     print(model_out)
-    # --------------------------------------------------
 
 
 if __name__ == '__main__':
@@ -104,8 +98,8 @@ if __name__ == '__main__':
     song_data = get_data()
 
     # spliting train/test 
-    train_data = song_data[:123000]
-    test_data = song_data[123000:]
+    train_data = song_data[:135000]
+    test_data = song_data[135000:140000]
 
     # chunk data into an array of 50 long examples  
     train_data_50 = chunker(train_data, 50)

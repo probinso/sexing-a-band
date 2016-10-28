@@ -18,6 +18,8 @@ def group_years(reader):
     d = defaultdict(int)
     for A, B in window(reader, 2):
         year, title, artist = A[:3]
+        if year[0] == '%':
+            continue
         line = A[3:]
 
         next_year = B[0]
@@ -27,6 +29,8 @@ def group_years(reader):
         if next_year != year:
             yield year, d
             d = defaultdict(int)
+
+    yield year, d
 
 
 with open('/media/terra/UndecidedTeam/bow_english_year.csv', 'w') as dst:

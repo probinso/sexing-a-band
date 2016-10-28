@@ -22,7 +22,7 @@ def db_setup():
 def data_base():
     """select all artists in DB and write their names with all their songs names and dates to csv"""
 
-    with open('data/song_title_year.csv', 'w') as csvfile:
+    with open('/media/terra/UndecidedTeam/data/song_title_year.csv', 'w') as csvfile:
         writer = csv.writer(csvfile)
         error_count = 0 
 

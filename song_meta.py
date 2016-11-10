@@ -11,22 +11,22 @@ def db_setup():
 
     return conn_tmdb
 
-D = Dict('en_US')
-def word_check(word):
-    return  D.check(word)
+# D = Dict('en_US')
+# def word_check(word):
+#     return  D.check(word)
 
-def criteria(func, uniq, threshold=5/10):    
-    return sum(map(func, uniq))/len(uniq) > threshold
+# def criteria(func, uniq, threshold=5/10):    
+#     return sum(map(func, uniq))/len(uniq) > threshold
 
 
 def data_base():
     """select all artists in DB and write their names with all their songs names and dates to csv"""
 
-    with open('data/song_title_year.csv', 'w') as csvfile:
+    with open('/media/terra/UndecidedTeam/data/song_title_year.csv', 'w') as csvfile:
         writer = csv.writer(csvfile)
         error_count = 0 
 
-        sql_state = "SELECT artist_id, artist_name FROM songs LIMIT 3;"
+        sql_state = "SELECT artist_id, artist_name FROM songs;"
         artist_name_ids = cur.execute(sql_state,).fetchall()
 
         for artist in artist_name_ids:
@@ -69,7 +69,11 @@ def data_base():
                 # --------------------------------------------------------------
 
                 try:
-                    line = ["{}, {}, {}".format(artist_name, title, song[1])]
+                    if int(song[1]) < 1995:
+                        line = ["{}, {}, {}".format(artist_name, title, song[1])]
+                        print(line)
+                    else: 
+                        continue
                 except Exception:
                     error_count += 1
 

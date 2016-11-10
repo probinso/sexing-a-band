@@ -7,7 +7,7 @@ from string import ascii_letters as letters, whitespace, punctuation, digits
 from os import remove
 
 
-def criteria(func, uniq, threshold=9/10):    
+def criteria(func, uniq, threshold=9/10):
     return sum(map(func, uniq))/len(uniq) > threshold
 
 def ascii_check(word):
@@ -21,14 +21,14 @@ def word_check(word):
 if __name__ == '__main__':
     tmpfile = '/media/terra/UndecidedTeam/bow_english.csv.tmp'
     with open('/media/terra/UndecidedTeam/bow_runner.csv') as src:
-        reader = csv.reader(src)
+        reader = csv.reader((line.replace('\0','') for line in src))
         words_store = set()
 
         with open(tmpfile, 'w') as dst:
             writer = csv.writer(dst)
             for line in reader:
                 # date, title, artist, BOW
-                uniq = {w for w, _ in map(lambda s: s.split(':'), line[3:])}
+                uniq = {w.strip() for w, _ in map(lambda s: s.split(':'), line[3:])}
 
                 if criteria(word_check, uniq, 6/10):
                     writer.writerow(line)

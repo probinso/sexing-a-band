@@ -1,13 +1,13 @@
-from __future__ import division 
+from __future__ import division
 
 import csv
 from collections import defaultdict
-import numpy as np 
+import numpy as np
 
 from scipy.sparse import lil_matrix
 from sklearn.cross_validation import train_test_split
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.externals import joblib
+from sklearn.externals   import joblib
 
 import pickle
 
@@ -21,7 +21,7 @@ def get_data():
         song_dict = defaultdict(int)
         count = 0
         for line in csv.reader(fd):
-            # ********* might be a way to make this split/dict convertion better ********    
+            # ********* might be a way to make this split/dict convertion better ********
             document = [item.split(':') for item in line[3:]]
             X = dict([[int(item[0]), float(item[1])] for item in document])
 
@@ -32,7 +32,7 @@ def get_data():
                 count += 1
                 continue
 
-            # subracting by 5 to move songs from 50s to zero index 
+            # subracting by 5 to move songs from 50s to zero index
             y = int(line[2]) - 5
 
             song_data.append([X, y])
@@ -42,10 +42,11 @@ def get_data():
 
 
     return song_data
- 
+
 def chunker(data, size):
     """chunk data into 50 element lists for batch training"""
     return ([data[pos:pos + size] for pos in xrange(0, len(data), size)])
+
 
 def oversample_data(data):
     """helper func to oversample data"""
@@ -61,6 +62,7 @@ def oversample_data(data):
 
     return X_res, y_res
 
+
 def sans_oversampling(data):
     """helper func for non oversampled data"""
 
@@ -74,17 +76,18 @@ def sans_oversampling(data):
 
 def matrix_func(a_list):
     """take a list of dicts and return a sparse lil_matrix"""
-    # make a matrix that matches the size of list of dicts 
+    # make a matrix that matches the size of list of dicts
     sparse_matrix = lil_matrix((len(a_list), 5000))
 
-    # loop through each dict in list, and add that dicts values to idx of key in sparse matrix 
+    # loop through each dict in list, and add that dicts values to idx of key in sparse matrix
     for idx, a_dict in enumerate(a_list):
 
-        for key in a_dict.keys(): 
-            # subtracting 1 from the key because values for words in dict start at 1 
+        for key in a_dict.keys():
+            # subtracting 1 from the key because values for words in dict start at 1
             sparse_matrix[idx, key - 1] = a_dict[key]
-    
+
     return sparse_matrix
+
 
 def run_NB(train_data_50):
     """runs NB on chuncked data using partial_fit"""
@@ -101,9 +104,10 @@ def run_NB(train_data_50):
 
         clf.partial_fit(X_res, y_res, classes)
 
+
 def score(test_data):
     """score the model being trained"""
-    # oversample & break up data 
+    # oversample & break up data
     # X_res, y_res = oversample_data(test_data)
 
     X_res, y_res = sans_oversampling(test_data)
@@ -113,7 +117,7 @@ def score(test_data):
     print("NB score: {}".format(score))
 
     # --------------------------------------------------
-    # look at what values model is predicting 
+    # look at what values model is predicting
     predictions = defaultdict(int)
 
     correct_pred = 0
@@ -124,13 +128,13 @@ def score(test_data):
         predictions[model_out[0]] += 1
 
         # --------------------------------------------------
-        # counting number of predictions within correct range 
+        # counting number of predictions within correct range
 
         prediciton_in_range1 = abs(y_res[idx] - model_out[0])
         print(type(prediciton_in_range1))
         print(prediciton_in_range1)
 
-        
+
         if int(prediciton_in_range1) < 2:
             correct_pred += 1
 
@@ -147,41 +151,35 @@ def score(test_data):
     print(predictions)
     print("NB score: {}".format(score))
     # # --------------------------------------------------
-    # # results from above 
+    # # results from above
     # # NB score: 0.566221235211
     # # defaultdict(<type 'int'>, {8: 7, 9: 3491, 10: 48580, 5: 85, 7: 71})
 
 
 if __name__ == '__main__':
-    # get song data from csv 
+    # get song data from csv
     song_data = get_data()
 
-    # spliting train/test 
+    # spliting train/test
     train_data = song_data[:140000]
     test_data = song_data[140000:150000]
 
-    # chunk data into an array of 50 long examples  
+    # chunk data into an array of 50 long examples
     train_data_50 = chunker(train_data, 50)
 
-    # setup global NB model 
+    # setup global NB model
     clf = MultinomialNB(fit_prior=True)
 
-    # train NB using partial fit 
+    # train NB using partial fit
     run_NB(train_data_50)
 
     # score the model using test data
     score(test_data)
 
-    # dump model into a pickle file 
+    # dump model into a pickle file
     # with open('./data/NB_pickles.pkl', 'wb') as fo:
     #     joblib.dump(clf, fo)
 
     # with open('./data/NB_pickle_pickle.pkl', 'wb') as pf:
 
     pickle.dump(clf, open('./data/NB_pickle_pickle.pkl', 'wb'))
-
-
-
-
-
-

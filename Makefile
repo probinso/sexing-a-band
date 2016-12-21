@@ -1,4 +1,7 @@
-RSRC=/media/terra/UndecidedTeam
+RSRC=$(shell jq '.storage_path' resource.json)
+
+check: resource.json
+	echo $(RSRC)
 
 $(RSRC)/bow_runner.csv:$(RSRC)/tracks_per_year.txt scrape.py
 	python scrape.py $(RSRC)/tracks_per_year.txt $(RSRC)/bow_runner.csv

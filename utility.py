@@ -6,9 +6,12 @@ import os.path as osp
 
 from glob import iglob as glob # iglob is a generator
 
-# REMOTE RESOURCES
-from appdirs import user_data_dir
-LOCATION = '/media/terra/UndecidedTeam'
+import json
+
+with open('resource.json') as fd:
+    RESOURCE = json.loads(fd.read())['storage_path']
+    
+
 
 def _path_resource(*paths):
     return osp.join(LOCATION, *paths)

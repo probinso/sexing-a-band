@@ -53,7 +53,7 @@ def test():
                 for skip in processed:
                     _ = next(in_iter)
 
-            with open(utility.makeresource('processed.txt'), 'a') as processed:
+            with open(utility.make_resource('processed.txt'), 'a') as processed:
                 p = csv.writer(processed)
                 for read in in_iter:
                     year, ident, artist, title = read.strip().split('<SEP>')

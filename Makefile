@@ -1,4 +1,4 @@
-engine := $(shell which python2.7)
+engine := $(shell which python)
 RSRC   := $(patsubst "%",%, $(shell jq '.storage_path' resource.json))
 
 check_resource: resource.json

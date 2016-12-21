@@ -9,7 +9,7 @@ from glob import iglob as glob # iglob is a generator
 import json
 
 with open('resource.json') as fd:
-    RESOURCE = json.loads(fd.read())['storage_path']
+    LOCATION = json.loads(fd.read())['storage_path']
     
 
 

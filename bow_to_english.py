@@ -6,6 +6,7 @@ import csv
 from enchant import Dict
 from string import ascii_letters as letters, whitespace, punctuation, digits
 from os import remove
+import sys
 import utility
 
 from tempfile import TemporaryFile
@@ -26,7 +27,7 @@ def word_check(word):
 
 
 def interface(inpath, outpath):
-    tmpfile = utilty.make_resource('bow_english.csv.tmp')
+    tmpfile = utility.make_resource('bow_english.csv.tmp')
     with open(utility.make_resource('bow_runner.csv')) as src:
         reader = csv.reader((line.replace('\0','') for line in src))
         words_store = set()

@@ -1,4 +1,9 @@
 
+RESOURCE=/media/terra/UndecidedTeam
+
+$(RESOURCE)/bow_english.csv:bow_to_english.py $(RESOURCE)/bow_runner.csv
+	bow_to_english.py $(RESOURCE)/bow_runner.csv $(RESOURCE)/bow_english.csv
+
 full_tfidf_model.tfidf:data/mxm_dataset_train.txt topic_maker_tfidf.py
 	python topic_maker_tfidf.py
 

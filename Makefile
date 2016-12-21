@@ -1,8 +1,13 @@
+RSRC=/media/terra/UndecidedTeam
 
-RESOURCE=/media/terra/UndecidedTeam
+$(RSRC)/bow_runner.csv:$(RSRC)/tracks_per_year.txt scrape.py
+	python scrape.py $(RSRC)/tracks_per_year.txt $(RSRC)/bow_runner.csv
 
-$(RESOURCE)/bow_english.csv:bow_to_english.py $(RESOURCE)/bow_runner.csv
-	bow_to_english.py $(RESOURCE)/bow_runner.csv $(RESOURCE)/bow_english.csv
+$(RSRC)/bow_english.csv:bow_to_english.py $(RSRC)/bow_runner.csv
+	python bow_to_english.py $(RSRC)/bow_runner.csv $(RSRC)/bow_english.csv
+
+
+
 
 full_tfidf_model.tfidf:data/mxm_dataset_train.txt topic_maker_tfidf.py
 	python topic_maker_tfidf.py

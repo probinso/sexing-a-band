@@ -1,5 +1,5 @@
 
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 import csv
 
 # Import all the sources modules
@@ -14,6 +14,8 @@ from lyrics_to_bow import lyrics_to_bow
 from random import shuffle
 
 from collections import defaultdict
+
+import .utility as utility
 
 class Song:
     sources = [wikia, lm]
@@ -43,15 +45,15 @@ class Song:
 
 import csv
 def test():
-    with open("/media/terra/UndecidedTeam/tracks_per_year.txt") as search_tracks:
+    with open(utility.make_resource('tracks_per_year.txt') as search_tracks:
         in_iter = iter(search_tracks)
-        with open("/media/terra/UndecidedTeam/bow_runner.csv", 'a') as bag_of_words:
+        with open(utility.make_resource('bow_runner.csv'), 'a') as bag_of_words:
             w = csv.writer(bag_of_words)
-            with open('/media/terra/UndecidedTeam/processed.txt') as processed:
+            with open(utility.make_resource('processed.txt')) as processed:
                 for skip in processed:
                     _ = next(in_iter)
 
-            with open('/media/terra/UndecidedTeam/processed.txt', 'a') as processed:
+            with open(utility.makeresource('processed.txt'), 'a') as processed:
                 p = csv.writer(processed)
                 for read in in_iter:
                     year, ident, artist, title = read.strip().split('<SEP>')

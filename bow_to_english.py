@@ -25,7 +25,7 @@ def word_check(word):
     return  D.check(word)
 
 
-def main():
+def interface(inpath, outpath):
     tmpfile = utilty.make_resource('bow_english.csv.tmp')
     with open(utility.make_resource('bow_runner.csv')) as src:
         reader = csv.reader((line.replace('\0','') for line in src))
@@ -68,5 +68,18 @@ def main():
     remove(tmpfile)
 
 
+def cli_interface():
+    """
+    by convention it is helpful to have a wrapper_cli method that interfaces
+    from commandline to function space.
+    """
+    try:
+        inpath, outpath = sys.argv[1], sys.argv[2]
+    except:
+        print("usage: {}  <inpath> <outpath>".format(sys.argv[0]))
+        sys.exit(1)
+    interface(inpath, outpath)
+
+
 if __name__ == '__main__':
-    
+    cli_interface()

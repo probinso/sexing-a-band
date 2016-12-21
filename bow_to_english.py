@@ -35,6 +35,7 @@ def interface(inpath, outpath):
         with open(tmpfile, 'w') as dst:
             writer = csv.writer(dst)
             for line in reader:
+                line = list(map(lambda s: s.replace(u'\xa0',' '), line))
                 # date, title, artist, BOW
                 uniq = {w.strip() for w, _ in map(lambda s: s.split(':'), line[3:])}
 

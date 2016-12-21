@@ -15,7 +15,7 @@ from random import shuffle
 
 from collections import defaultdict
 
-import .utility as utility
+import utility
 
 class Song:
     sources = [wikia, lm]
@@ -45,7 +45,7 @@ class Song:
 
 import csv
 def test():
-    with open(utility.make_resource('tracks_per_year.txt') as search_tracks:
+    with open(utility.make_resource('tracks_per_year.txt')) as search_tracks:
         in_iter = iter(search_tracks)
         with open(utility.make_resource('bow_runner.csv'), 'a') as bag_of_words:
             w = csv.writer(bag_of_words)

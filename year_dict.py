@@ -4,7 +4,7 @@ from __future__  import print_function, absolute_import
 from collections import defaultdict
 import csv
 
-import .utility as utility
+import utility
 
 def window(iterable, size):
     it  = iter(iterable)

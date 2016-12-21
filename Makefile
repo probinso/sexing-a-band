@@ -1,16 +1,18 @@
-engine=$(shell which python2.7)
-RSRC=$(shell jq '.storage_path' resource.json)
+engine := $(shell which python2.7)
+RSRC   := $(patsubst "%",%, $(shell jq '.storage_path' resource.json))
 
 check_resource: resource.json
 	echo $(RSRC)
 
-
+bow_english_year.csv: $(RSRC)/bow_english_year.csv
 $(RSRC)/bow_english_year.csv: $(RSRC)/bow_english.csv year_dict.py
 	$(engine) year_dict.py $(RSRC)/bow_english.csv $(RSRC)/bow_english_year.csv
 
-$(RSRC)/bow_english.csv:bow_to_english.py $(RSRC)/bow_runner.csv
+bow_english.csv:$(RSRC)/bow_english.csv
+$(RSRC)/bow_english.csv:bow_to_english.py bow_runner.csv
 	$(engine) bow_to_english.py $(RSRC)/bow_runner.csv $(RSRC)/bow_english.csv
 
+bow_runner.csv:$(RSRC)/bow_runner.csv
 $(RSRC)/bow_runner.csv:$(RSRC)/tracks_per_year.txt scrape.py
 	$(engine) scrape.py $(RSRC)/tracks_per_year.txt $(RSRC)/bow_runner.csv
 

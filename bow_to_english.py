@@ -6,7 +6,7 @@ import csv
 from enchant import Dict
 from string import ascii_letters as letters, whitespace, punctuation, digits
 from os import remove
-import .utility as utility
+import utility
 
 from tempfile import TemporaryFile
 

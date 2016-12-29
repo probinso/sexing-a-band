@@ -4,7 +4,6 @@ import csv
 import gensim
 
 tfidf = gensim.models.TfidfModel.load("./full_tfidf_model.tfidf")
-# lsi = gensim.models.LsiModel.load('./data/full_song_topics_tfidif.lsi')
 
 """Uses models trained in topic_maker_tfidf.py to set up data from our training data set 
     from ./data/mxm_dataset_train.txt so it can be used in another sklearn model more easily"""

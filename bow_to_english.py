@@ -9,11 +9,13 @@ from os import remove
 import sys
 import utility
 
+from collections import defaultdict
+
 from tempfile import TemporaryFile
 
 
 def criteria(func, uniq, threshold=9/10):
-    return sum(map(func, uniq))/len(uniq) > threshold
+    return sum(map(func, uniq))/len(uniq) > threshold if uniq else False
 
 
 def ascii_check(word):
@@ -30,21 +32,27 @@ def interface(inpath, outpath):
     tmpfile = utility.make_resource('bow_english.csv.tmp')
     with open(utility.make_resource('bow_runner.csv')) as src:
         reader = csv.reader((line.replace('\0','') for line in src))
-        words_store = set()
+        words_store = defaultdict(int)
 
         with open(tmpfile, 'w') as dst:
             writer = csv.writer(dst)
             for line in reader:
-                line = list(map(lambda s: s.replace(u'\xa0',' '), line))
+
+                line = list(filter(ascii_check, line))
+
                 # date, title, artist, BOW
                 uniq = {w.strip() for w, _ in map(lambda s: s.split(':'), line[3:])}
 
                 if criteria(word_check, uniq, 6/10):
                     writer.writerow(line)
-                    words_store = words_store.union(uniq)
+                    for word in uniq:
+                        words_store[word] += 1
                 else:
                     print(line)
                     print()
+
+    minimum_count = 1
+    words_store = {w:c for w, c in words_store.items() if c <= minimum_count}
 
     lookup = [(w,k) for k, w in enumerate(words_store, 1)]
     del words_store
@@ -64,9 +72,13 @@ def interface(inpath, outpath):
             for line in reader:
                 # date, title, artist, BOW
                 date, title, artist = line[:3]
-                line = ['{}:{}'.format(lookup[w],c) for w, c in map(lambda s: s.split(':'), line[3:])]
-                line = [date, title, artist] + line
-                writer.writerow(line)
+                output = []
+                for w, c in map(lambda s: s.split(':'), line[3:]):
+                    if lookup.get(w, False):
+                        output.append('{}:{}'.format(lookup[w], c))
+
+                if output:
+                    writer.writerow([date, title, artist] + output)
     remove(tmpfile)
 
 

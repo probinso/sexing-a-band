@@ -35,9 +35,10 @@ def group_years(reader):
     yield year, d
 
 
-with open('/media/terra/UndecidedTeam/bow_english_year.csv', 'w') as dst:
+    
+with open(utility.make_resource('bow_english_year.csv'), 'w') as dst:
     writer = csv.writer(dst)
-    with open('/media/terra/UndecidedTeam/bow_english.csv', 'r')  as src:
+    with open(utility.make_resource('bow_english.csv'), 'r')  as src:
         reader = csv.reader(src)
         for year, counts in group_years(reader):
             line = ['{}:{}'.format(w, counts[w]) for w in counts]

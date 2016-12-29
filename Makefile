@@ -13,14 +13,29 @@ $(RSRC)/bow_english.csv:bow_to_english.py bow_runner.csv
 	$(engine) bow_to_english.py $(RSRC)/bow_runner.csv $(RSRC)/bow_english.csv
 
 bow_runner.csv:$(RSRC)/bow_runner.csv
-$(RSRC)/bow_runner.csv:$(RSRC)/tracks_per_year.txt scrape.py
+$(RSRC)/bow_runner.csv:$(RSRC)/tracks_per_year.txt scrape.py processed.txt
+	touch $(RSRC)/bow_runner.csv
 	$(engine) scrape.py $(RSRC)/tracks_per_year.txt $(RSRC)/bow_runner.csv
 
+processed.txt:$(RSRC)/processed.txt
+$(RSRC)/processed.txt:
+	touch $(RSRC)/processed.txt
+
+full_tfidf_model.tfidf: $(RSRC)/full_tfidf_model.tfidf
+$(RSRC)/full_tfidf_model.tfidf:topic_maker_tfidf.py bow_english.csv
+	$(engine) topic_maker_tfidf.py bow_english.csv full_tfidf_model.tfidf
+
+
+only_tfidf.csv:$(RSRC)/only_tfidf.csv
+$(RSRC)/only_tfidf.csv: make_tfidf_score.py full_tfidf_model.tfidf bow_english_year.csv
+	$(engine) make_tfidf_score.py bow_english_year.csv full_tfidf_model.tfidf full_putput.csv only_tfidf.csv
 
 
 
-full_tfidf_model.tfidf:data/mxm_dataset_train.txt topic_maker_tfidf.py
-	$(engine) topic_maker_tfidf.py
+
+
+
+
 
 data/only_tfidf.csv:train_data_tfidf.py full_tfidf_model.tfidf
 	$(engine) train_data_tfidf.py

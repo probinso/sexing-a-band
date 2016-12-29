@@ -28,6 +28,5 @@ def make_resource(*paths):
     dpath = _path_resource(*dirs)
     os.makedirs(dpath, exist_ok=True)
     fpath = osp.join(dpath, filename)
-    os.utime(fpath, None)
     return fpath
 

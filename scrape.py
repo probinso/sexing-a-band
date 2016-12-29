@@ -70,11 +70,6 @@ def test():
                     processed.flush()
                     bag_of_words.flush()
 
-    with open("scores.txt", 'wb') as fd:
-        for i in Song.scores:
-            print(i, sum(scores[i]), sum(map(lambda x: 1 - x, scores[i])), file=fd)
-
-
 if __name__ == '__main__':
     test()
 

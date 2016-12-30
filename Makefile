@@ -32,7 +32,7 @@ $(RSRC)/only_tfidf.csv: make_tfidf_score.py full_tfidf_model.tfidf bow_english_y
 
 
 clean:
-	rm -rf $(RSRC)/{bow_english.csv,processed.txt,full_tfidf_model.tfidf,bow_english_year.csv,only_tfidf.csv}
+	rm -rf $(RSRC)/{bow_english.csv,full_tfidf_model.tfidf,bow_english_year.csv,only_tfidf.csv}
 
 
 

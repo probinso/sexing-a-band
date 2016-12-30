@@ -36,7 +36,7 @@ with open(filename, 'w') as out_file:
 
             topic_vec = ['{}:{}'.format(item[0], (item[1])) for item in song_tfidf]
 
-            print(','.join([line[0], line[2], str(date_class), ','.join(topic_vec)]), file=out_file)
+            print(','.join([line[0], str(date_class), ','.join(topic_vec)]), file=out_file)
  
 print("total num of missing dates: {}".format(zeros))
 # missing 62428 dates from song meta_data 

@@ -10,6 +10,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.externals   import joblib
 
 import pickle
+import utility
 
 from imblearn.over_sampling import RandomOverSampler
 
@@ -17,23 +18,23 @@ from imblearn.over_sampling import RandomOverSampler
 def get_data():
     """grab data from csv and break into [X, y] list items"""
     song_data = []
-    with open("./data/only_tfidf.csv") as fd:
+    with open(utility.make_resource('only_tfidf.csv')) as fd:
         song_dict = defaultdict(int)
         count = 0
         for line in csv.reader(fd):
             # ********* might be a way to make this split/dict convertion better ********
-            document = [item.split(':') for item in line[3:]]
+            document = [item.split(':') for item in line[2:]]
             X = dict([[int(item[0]), float(item[1])] for item in document])
 
-            song_dict[int(line[2])] += 1
+            song_dict[int(line[1])] += 1
 
             # filtering out songs from 20s & 30s & 40s(153 songs total)
-            if int(line[2]) <= 4:
+            if int(line[1]) <= 4:
                 count += 1
                 continue
 
             # subracting by 5 to move songs from 50s to zero index
-            y = int(line[2]) - 5
+            y = int(line[1]) - 5
 
             song_data.append([X, y])
 
@@ -45,7 +46,7 @@ def get_data():
 
 def chunker(data, size):
     """chunk data into 50 element lists for batch training"""
-    return ([data[pos:pos + size] for pos in xrange(0, len(data), size)])
+    return ([data[pos:pos + size] for pos in range(0, len(data), size)])
 
 
 def oversample_data(data):
@@ -77,7 +78,7 @@ def sans_oversampling(data):
 def matrix_func(a_list):
     """take a list of dicts and return a sparse lil_matrix"""
     # make a matrix that matches the size of list of dicts
-    sparse_matrix = lil_matrix((len(a_list), 5000))
+    sparse_matrix = lil_matrix((len(a_list), 50000))
 
     # loop through each dict in list, and add that dicts values to idx of key in sparse matrix
     for idx, a_dict in enumerate(a_list):
@@ -161,8 +162,8 @@ if __name__ == '__main__':
     song_data = get_data()
 
     # spliting train/test
-    train_data = song_data[:140000]
-    test_data = song_data[140000:150000]
+    train_data = song_data[:20]
+    test_data = song_data[20:]
 
     # chunk data into an array of 50 long examples
     train_data_50 = chunker(train_data, 50)
@@ -182,4 +183,4 @@ if __name__ == '__main__':
 
     # with open('./data/NB_pickle_pickle.pkl', 'wb') as pf:
 
-    pickle.dump(clf, open('./data/NB_pickle_pickle.pkl', 'wb'))
+    #pickle.dump(clf, open('./data/NB_pickle_pickle.pkl', 'wb'))

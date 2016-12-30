@@ -31,6 +31,9 @@ $(RSRC)/only_tfidf.csv: make_tfidf_score.py full_tfidf_model.tfidf bow_english_y
 	$(engine) make_tfidf_score.py bow_english_year.csv full_tfidf_model.tfidf full_putput.csv only_tfidf.csv
 
 
+veryclean:
+	rm -rf $(RSRC)/{processed.txt,bow_runner.csv,full_tfidf_model.tfidf,bow_english_year.csv,only_tfidf.csv}
+
 
 
 

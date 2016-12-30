@@ -33,17 +33,3 @@ $(RSRC)/only_tfidf.csv: make_tfidf_score.py full_tfidf_model.tfidf bow_english_y
 
 clean:
 	rm -rf $(RSRC)/{bow_english.csv,full_tfidf_model.tfidf,bow_english_year.csv,only_tfidf.csv}
-
-
-
-
-
-
-
-
-
-data/only_tfidf.csv:train_data_tfidf.py full_tfidf_model.tfidf
-	$(engine) train_data_tfidf.py
-
-test_score:data/only_tfidf.csv NB_tfidf.py
-	$(engine) NB_tfidf.py

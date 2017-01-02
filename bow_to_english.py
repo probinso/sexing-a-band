@@ -30,7 +30,7 @@ def word_check(word):
 
 def interface(inpath, outpath):
     tmpfile = utility.make_resource('bow_english.csv.tmp')
-    with open(utility.make_resource('bow_runner.csv')) as src:
+    with open(utility.make_resource(inpath), 'r') as src:
         reader = csv.reader((line.replace('\0','') for line in src))
         words_store = defaultdict(int)
 
@@ -65,7 +65,7 @@ def interface(inpath, outpath):
     with open(tmpfile, 'r') as src:
         reader = csv.reader(src)
 
-        with open(utility.make_resource('bow_english.csv'), 'w') as dst:
+        with open(utility.make_resource(outpath), 'w') as dst:
             writer = csv.writer(dst)
             writer.writerow(words)
             del words
@@ -88,11 +88,11 @@ def cli_interface():
     from commandline to function space.
     """
     try:
-        inpath, outpath = sys.argv[1], sys.argv[2]
+        ifname, ofpath = sys.argv[1], sys.argv[2]
     except:
-        print("usage: {}  <inpath> <outpath>".format(sys.argv[0]))
+        print("usage: {}  <ifname> <ofpath>".format(sys.argv[0]))
         sys.exit(1)
-    interface(inpath, outpath)
+    interface(ifname, ofpath)
 
 
 if __name__ == '__main__':

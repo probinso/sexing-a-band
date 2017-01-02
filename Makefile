@@ -6,16 +6,16 @@ check_resource: resource.json
 
 bow_english_year.csv: $(RSRC)/bow_english_year.csv
 $(RSRC)/bow_english_year.csv: $(RSRC)/bow_english.csv year_dict.py
-	$(engine) year_dict.py $(RSRC)/bow_english.csv $(RSRC)/bow_english_year.csv
+	$(engine) year_dict.py bow_english.csv bow_english_year.csv
 
 bow_english.csv:$(RSRC)/bow_english.csv
 $(RSRC)/bow_english.csv:bow_to_english.py bow_runner.csv
-	$(engine) bow_to_english.py $(RSRC)/bow_runner.csv $(RSRC)/bow_english.csv
+	$(engine) bow_to_english.py bow_runner.csv bow_english.csv
 
 bow_runner.csv:$(RSRC)/bow_runner.csv
 $(RSRC)/bow_runner.csv:$(RSRC)/tracks_per_year.txt scrape.py processed.txt
 	touch $(RSRC)/bow_runner.csv
-	$(engine) scrape.py $(RSRC)/tracks_per_year.txt $(RSRC)/bow_runner.csv
+	$(engine) scrape.py tracks_per_year.txt bow_runner.csv
 
 processed.txt:$(RSRC)/processed.txt
 $(RSRC)/processed.txt:

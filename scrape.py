@@ -43,11 +43,11 @@ class Song:
                 print(e)
                 continue
 
-import csv
-def test():
-    with open(utility.make_resource('tracks_per_year.txt')) as search_tracks:
+
+def interface(ifname, ofname):
+    with open(utility.make_resource(ifname)) as search_tracks:
         in_iter = iter(search_tracks)
-        with open(utility.make_resource('bow_runner.csv'), 'a') as bag_of_words:
+        with open(utility.make_resource(ofname), 'a') as bag_of_words:
             w = csv.writer(bag_of_words)
             with open(utility.make_resource('processed.txt')) as processed:
                 for skip in processed:
@@ -70,6 +70,20 @@ def test():
                     processed.flush()
                     bag_of_words.flush()
 
-if __name__ == '__main__':
-    test()
 
+
+def cli_interface():
+    """
+    by convention it is helpful to have a wrapper_cli method that interfaces
+    from commandline to function space.
+    """
+    try:
+        ifname, ofname = sys.argv[1], sys.argv[2]
+    except:
+        print("usage: {}  <ifname> <ofname>".format(sys.argv[0]))
+        sys.exit(1)
+    interface(ifname, ofname)
+
+
+if __name__ == '__main__':
+    cli_interface()

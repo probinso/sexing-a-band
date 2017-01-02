@@ -35,14 +35,30 @@ def group_years(reader):
     yield year, d
 
 
-    
-with open(utility.make_resource('bow_english_year.csv'), 'w') as dst:
-    writer = csv.writer(dst)
-    with open(utility.make_resource('bow_english.csv'), 'r')  as src:
-        reader = csv.reader(src)
-        for year, counts in group_years(reader):
-            line = ['{}:{}'.format(w, counts[w]) for w in counts]
-            line.insert(0, year)
+def interface(ifname, ofname):
+    with open(utility.make_resource(ofname), 'w') as dst:
+        writer = csv.writer(dst)
+        with open(utility.make_resource(ifname), 'r')  as src:
+            reader = csv.reader(src)
+            for year, counts in group_years(reader):
+                line = ['{}:{}'.format(w, counts[w]) for w in counts]
+                line.insert(0, year)
 
-            writer.writerow(line)
+                writer.writerow(line)
 
+
+def cli_interface():
+    """
+    by convention it is helpful to have a wrapper_cli method that interfaces
+    from commandline to function space.
+    """
+    try:
+        ifname, ofname = sys.argv[1], sys.argv[2]
+    except:
+        print("usage: {}  <inpath> <outpath>".format(sys.argv[0]))
+        sys.exit(1)
+    interface(ifname, ofname)
+
+
+if __name__ == '__main__':
+    cli_interface()

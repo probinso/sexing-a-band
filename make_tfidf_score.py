@@ -38,3 +38,22 @@ with open(filename, 'w') as out_file:
  
 print("total num of missing dates: {}".format(zeros))
 # missing 62428 dates from song meta_data 
+
+
+def cli_interface():
+    """
+    by convention it is helpful to have a wrapper_cli method that interfaces
+    from commandline to function space.
+    """
+    try:
+        ifname, ofpath = sys.argv[1], sys.argv[2]
+    except:
+        print("usage: {}  <ifname> <ofpath>".format(sys.argv[0]))
+        sys.exit(1)
+    interface(ifname, ofpath)
+
+"""
+if __name__ == '__main__':
+    cli_interface()
+
+"""

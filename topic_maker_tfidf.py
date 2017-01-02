@@ -4,6 +4,8 @@ import csv
 import gensim
 import utility
 
+import sys
+
 def interface(ifname, ofname):
     corpus = []
     with open(utility.make_resource(ifname)) as fd:

@@ -28,7 +28,7 @@ $(RSRC)/full_tfidf_model.tfidf:topic_maker_tfidf.py bow_english.csv
 
 only_tfidf.csv:$(RSRC)/only_tfidf.csv
 $(RSRC)/only_tfidf.csv: make_tfidf_score.py full_tfidf_model.tfidf bow_english_year.csv
-	$(engine) make_tfidf_score.py bow_english_year.csv full_tfidf_model.tfidf full_putput.csv only_tfidf.csv
+	$(engine) make_tfidf_score.py bow_english_year.csv full_tfidf_model.tfidf only_tfidf.csv
 
 
 clean:

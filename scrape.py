@@ -2,6 +2,8 @@
 from __future__ import print_function, absolute_import
 import csv
 
+import sys
+
 # Import all the sources modules
 from lyrico_sources.lyric_wikia    import donwload_from_lyric_wikia as wikia
 #from lyrico_sources.lyrics_n_music import donwload_from_lnm         as lnm

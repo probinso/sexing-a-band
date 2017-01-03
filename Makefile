@@ -31,5 +31,10 @@ $(RSRC)/only_tfidf.csv: make_tfidf_score.py full_tfidf_model.tfidf bow_english_y
 	$(engine) make_tfidf_score.py bow_english_year.csv full_tfidf_model.tfidf only_tfidf.csv
 
 
+NB_model.pkl:$(RSRC)/NB_model.pkl
+$(RSRC)/NB_model.pkl:NB_tfidf.py only_tfidf.csv
+	$(engine) NB_tfidf.py only_tfidf.csv NB_model.pkl
+
+
 clean:
 	rm -rf $(RSRC)/{bow_english.csv,full_tfidf_model.tfidf,bow_english_year.csv,only_tfidf.csv}

@@ -52,7 +52,7 @@ def interface(inpath, outpath):
                     print()
 
     minimum_count = 1
-    words_store = {w:c for w, c in words_store.items() if c <= minimum_count}
+    words_store = {w:c for w, c in words_store.items() if c > minimum_count}
 
     lookup = [(w,k) for k, w in enumerate(words_store, 1)]
     del words_store

@@ -12,6 +12,13 @@ with open('resource.json') as fd:
     LOCATION = json.loads(fd.read())['storage_path']
     
 
+def getdict(filename):
+    resource = make_resource(filename)
+    with open(resource) as fd:
+        it = iter(fd)
+        dline = next(it)
+        stri = lambda s: s.strip()
+        return {word : key for key, word in enumerate(map(stri, dline[1:].split(',')), 1)}
 
 def _path_resource(*paths):
     return osp.join(LOCATION, *paths)

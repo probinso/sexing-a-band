@@ -1,4 +1,4 @@
-from __future__ import division
+from __future__ import division, print_function
 
 import csv
 from collections import defaultdict
@@ -11,6 +11,7 @@ from sklearn.externals   import joblib
 
 import pickle
 import utility
+import sys
 
 from imblearn.over_sampling import RandomOverSampler
 
@@ -28,7 +29,7 @@ def get_data():
             song_decade = line[1]
 
             document = [item.split(':') for item in song_vector]
-            X = dict([[int(item[0]), float(item[1])] for item in song_vector])
+            X = dict([[int(item[0]), float(item[1])] for item in document])
 
             song_dict[int(song_decade)] += 1
 
@@ -81,7 +82,7 @@ def sans_oversampling(data):
 def matrix_func(a_list):
     """take a list of dicts and return a sparse lil_matrix"""
     # make a matrix that matches the size of list of dicts
-    sparse_matrix = lil_matrix((len(a_list), 50000))
+    sparse_matrix = lil_matrix((len(a_list), dict_length))
 
     # loop through each dict in list, and add that dicts values to idx of key in sparse matrix
     for idx, a_dict in enumerate(a_list):
@@ -131,9 +132,11 @@ def score(test_data):
 
     predict_percent = correct_range_pred / X_res.shape[0]
     print("percent correct_pred within +/- 1 decade block {}".format(predict_percent))
-    print("score of NB model: {}".format(score)
+    print("score of NB model: {}".format(score))
     print("dict of decades predicted: {}".format(predictions_dict))
     return
+
+dict_length = None
 
 if __name__ == '__main__':
     # get song data from csv
@@ -146,16 +149,20 @@ if __name__ == '__main__':
     test_data = song_data[split_num:]
 
     # chunk data into an array of 50 long examples
-    train_data_50 = chunker(train_data, 50)
+    train_data_50 = chunker(song_data, 50)
 
     # setup global NB model
     clf = MultinomialNB(fit_prior=True)
+
+    # grab length of dict
+    global dict_length
+    dict_length  = int(sys.argv[2])
 
     # train NB using partial fit
     run_NB(train_data_50)
 
     # score the model using test data
-    score(test_data)
+    #score(test_data)
 
     # dump model into a pickle file
-    #pickle.dump(clf, open('./data/NB_pickle_pickle.pkl', 'wb'))
+    pickle.dump(clf, open(utility.make_resource('NB_model.pkl'), 'wb'))

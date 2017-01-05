@@ -94,7 +94,7 @@ def matrix_func(a_list, dict_length):
     return sparse_matrix
 
 
-def run_NB(train_data_50, dict_length):
+def run_NB(train_data_50, dict_length, clf):
     """runs NB on chuncked data using partial_fit"""
 
     classes = range(7)
@@ -141,8 +141,9 @@ def score(test_data):
 def interface(ifname, dict_pickle, ofname):
 
     # get length of dict_pickle
-    lookup_dict = pickle.load(dict_pickle)
-    dict_length = len(lookup_dict)
+    with open(utility.make_resource(dict_pickle), 'rb') as pf:
+        lookup_dict = pickle.load(pf)
+        dict_length = len(lookup_dict)
     print("length of lookup dict: {}".format(dict_length))
 
     song_data = get_data(ifname)
@@ -156,11 +157,11 @@ def interface(ifname, dict_pickle, ofname):
     # chunk data into an array of 50 long examples
     train_data_50 = chunker(song_data, 50)
 
-    # setup global NB model
+    # make instance of NB model
     clf = MultinomialNB(fit_prior=True)
 
     # train NB using partial fit
-    run_NB(train_data_50, dict_length)
+    run_NB(train_data_50, dict_length, clf)
 
     # *** training only currently, using mxm data to score elsewhere ***
     # score the model using test data

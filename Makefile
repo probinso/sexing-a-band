@@ -40,7 +40,7 @@ $(RSRC)/only_tfidf.csv: make_tfidf_score.py full_tfidf_model.tfidf bow_english_y
 
 NB_model.pkl:$(RSRC)/NB_model.pkl
 $(RSRC)/NB_model.pkl:NB_tfidf.py only_tfidf.csv
-	$(engine) NB_tfidf.py only_tfidf.csv $$(( $(COUNT) + 1 )) NB_model.pkl
+	$(engine) NB_tfidf.py only_tfidf.csv word_lookup.pkl NB_model.pkl
 
 word_lookup.pkl:$(RSRC)/word_lookup.pkl
 $(RSRC)/word_lookup.pkl: bow_english.csv savedict.py

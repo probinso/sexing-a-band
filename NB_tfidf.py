@@ -138,7 +138,12 @@ def score(test_data):
     return
 
 
-def interface(ifname, dict_length, ofname):
+def interface(ifname, dict_pickle, ofname):
+
+    # get length of dict_pickle
+    lookup_dict = pickle.load(dict_pickle)
+    dict_length = len(lookup_dict)
+    print("length of lookup dict: {}".format(dict_length))
 
     song_data = get_data(ifname)
 
@@ -171,11 +176,11 @@ def cli_interface():
     from commandline to function space.
     """
     try:
-        ifname, dict_length, ofname = sys.argv[1], sys.argv[2], sys.argv[3]
+        ifname, dict_pickle, ofname = sys.argv[1], sys.argv[2], sys.argv[3]
     except:
         print("usage: {}  <inpath> <outpath>".format(sys.argv[0]))
         sys.exit(1)
-    interface(ifname, dict_length, ofname)
+    interface(ifname, dict_pickle, ofname)
 
 
 if __name__ == '__main__':

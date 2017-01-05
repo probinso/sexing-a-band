@@ -138,8 +138,6 @@ def score(test_data):
     return
 
 
-
-
 def interface(ifname, dict_length, ofname):
 
     song_data = get_data(ifname)

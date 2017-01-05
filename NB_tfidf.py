@@ -154,9 +154,6 @@ def interface(ifname, dict_length, ofname):
     # setup global NB model
     clf = MultinomialNB(fit_prior=True)
 
-    # grab length of dict
-    dict_length  = int(sys.argv[2])
-
     # train NB using partial fit
     run_NB(train_data_50, dict_length)
 

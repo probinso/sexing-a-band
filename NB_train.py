@@ -17,8 +17,6 @@ def get_data(song_file):
 
     song_data = []
     with open(utility.make_resource(song_file)) as fd:
-        song_dict = defaultdict(int)
-        count = 0
 
         for line in csv.reader(fd):
             song_vector = line[2:]
@@ -27,11 +25,10 @@ def get_data(song_file):
             document = [item.split(':') for item in song_vector]
             X = dict([[int(item[0]), float(item[1])] for item in document])
 
-            song_dict[int(song_decade)] += 1
+            # subtracting by 2 to move songs from 20s to zero idx
+            y = int(song_decade) - 2
 
             song_data.append([X, y])
-
-        print("dict of num of song count by decade: {}".format(song_dict))
 
     return song_data
 
@@ -40,6 +37,7 @@ def data_prep(data, dict_length):
     """helper func that turns list of lists in format [[dict, year], ...]
        into [sparse_matrices] [year] format for training NB model"""
 
+    # make a list of list matrix that matches the size of list of dicts
     X_data = [item[0] for item in data]
     y_data = np.array([item[1] for item in data])
 
@@ -58,14 +56,10 @@ def data_prep(data, dict_length):
 def run_NB(song_data, dict_length, clf):
     """runs NB on chuncked data using partial_fit"""
 
-    classes = range(9)
-    for idx in range(len(song_data)):
-        data = song_data[idx]
+    # need to turn dicts in song_data into sparse matrices
+    X_res, y_res = data_prep(song_data, dict_length)
 
-        # need to turn dicts in song_data into sparse matrices 
-        X_res, y_res = data_prep(data, dict_length)
-
-        clf.partial_fit(X_res, y_res, classes)
+    clf.fit(X_res, y_res)
 
     print("NB model finsihed training")
     return

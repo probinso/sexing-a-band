@@ -1,6 +1,6 @@
 engine := $(shell which python)
 RSRC   := $(patsubst "%",%, $(shell jq '.storage_path' resource.json))
-COUNT  := $(shell head -n 1 $(RSRC)/bow_english.csv | tr -cd , | wc -c)
+COUNT  := $(shell head -1 $(RSRC)/bow_english.csv | sed 's/[^,]//g' | wc -c)
 
 default:all
 
@@ -9,7 +9,7 @@ all:NB_model.pkl word_lookup.pkl
 
 check_resource: resource.json
 	echo $(RSRC)
-	echo $$(( $(COUNT) + 1 ))
+	echo $$(( $(COUNT) + 0 ))
 
 bow_english_year.csv: $(RSRC)/bow_english_year.csv
 $(RSRC)/bow_english_year.csv: $(RSRC)/bow_english.csv year_dict.py
@@ -40,7 +40,8 @@ $(RSRC)/only_tfidf.csv: make_tfidf_score.py full_tfidf_model.tfidf bow_english_y
 
 NB_model.pkl:$(RSRC)/NB_model.pkl
 $(RSRC)/NB_model.pkl:NB_tfidf.py only_tfidf.csv
-	$(engine) NB_tfidf.py only_tfidf.csv word_lookup.pkl NB_model.pkl
+	$(engine) NB_train.py only_tfidf.csv word_lookup.pkl NB_model.pkl
+
 
 word_lookup.pkl:$(RSRC)/word_lookup.pkl
 $(RSRC)/word_lookup.pkl: bow_english.csv savedict.py

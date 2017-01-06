@@ -48,5 +48,8 @@ $(RSRC)/word_lookup.pkl: bow_english.csv savedict.py
 	$(engine) savedict.py bow_english.csv word_lookup.pkl
 
 
+preprocessed:word_lookup.pkl NB_model.pkl full_tfidf_model.tfidf
+	cp $(RSRC)/{word_lookup.pkl,NB_model.pkl,full_tfidf_model.tfidf} ./preprocessed/
+
 clean:
 	rm -rf $(RSRC)/{bow_english.csv,full_tfidf_model.tfidf,bow_english_year.csv,only_tfidf.csv}

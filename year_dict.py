@@ -8,19 +8,9 @@ import utility
 import sys
 
 
-def window(iterable, size):
-    it  = iter(iterable)
-    ret = [next(it) for _ in range(size)]
-
-    yield ret
-    for elm in it:
-        ret = ret[1:] + [elm]
-        yield ret
-
-
 def group_years(reader):
     d = defaultdict(int)
-    for A, B in window(reader, 2):
+    for A, B in utility.window(reader, 2):
         year, title, artist = A[:3]
         if year[0] == '%':
             continue

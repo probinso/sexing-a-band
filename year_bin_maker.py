@@ -4,77 +4,50 @@ from __future__  import print_function, absolute_import
 from collections import defaultdict
 import csv
 
-#import utility
+import utility
 import sys
 
 
-
-
-# input looks like: 
-# 1924, song title, artist, song vector
-
-# output we want 
-# 1st line: %year:bin_value, year:bin_value ----> so you can read from it later to make a dict
-# year, bin, song vector 
-
-def window(iterable, size):
-    it  = iter(iterable)
-    ret = [next(it) for _ in range(size)]
-
-    yield ret
-    for elm in it:
-        ret = ret[1:] + [elm]
-        yield ret
-
-
 def make_bins_dict(bucket_size):
-    """Split group of years into buckets, make a dict year:bucket_of_year, 
+    """split group of years into buckets, make a dict year:bucket_of_year, 
     then write string representing dict to first row in csv"""
-    start, end = 1920, 2030
+
+    # need to go to 2021 to make sure years after 2010 are included in dict 
+    start, end = 1920, 2021
     bucket_increment = 0
-
-    range_list = []
-
-    for low, high in window(range(start, end, bucket_size), 2):
-
-
-        
-
-        
-        range_list.append([low, high, bucket_increment]) 
-        bucket_increment += 1
-
-    print(range_list)
-
     bucket_dict = defaultdict()
 
-    for item in range_list: 
-        for year in range(item[0], item[1]):
-            bucket_dict[year] = item[2]
+    for low, high in utility.window(range(start, end, bucket_size), 2): 
+        for year in range(low, high):
+            bucket_dict[year] = bucket_increment
 
-    test = bucket_dict.items()
+        bucket_increment += 1
 
-    final = ["{}:{}".format(item[0], item[1]) for item in test]
-    final_out = '%'+','.join(final)
-
-    print(final_out.split(','))
-
-
-
-
+    return bucket_dict
 
 
 def interface(ifname, ofname):
+    """decide how many bins you want the training set broken into by
+       entering number in year_bins_dict"""
+
+    year_bins_dict = make_bins_dict(10)
+
     with open(utility.make_resource(ofname), 'w') as dst:
         writer = csv.writer(dst)
         with open(utility.make_resource(ifname), 'r')  as src:
             reader = csv.reader(src)
-            for year, counts in group_years(reader):
-                line = ['{}:{}'.format(w, counts[w]) for w in counts]
+
+            for song in reader:
+                # filter out first line with words in corpus, starts with %
+                if song[0][0] == '%':
+                    continue 
+                
+                line = song[3:]
+                year = int(song[0])
                 line.insert(0, year)
+                line.insert(1, year_bins_dict[year])
 
                 writer.writerow(line)
-
 
 def cli_interface():
     """
@@ -90,8 +63,9 @@ def cli_interface():
 
 
 if __name__ == '__main__':
-    # cli_interface()
-    make_bins_dict(10)
+    cli_interface()
+
+ 
 
 
 

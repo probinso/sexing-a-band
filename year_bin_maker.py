@@ -9,15 +9,15 @@ import sys
 
 
 def make_bins_dict(bucket_size):
-    """split group of years into buckets, make a dict year:bucket_of_year, 
+    """split group of years into buckets, make a dict year:bucket_of_year,
     then write string representing dict to first row in csv"""
 
-    # need to go to 2021 to make sure years after 2010 are included in dict 
+    # need to go to 2021 to make sure years after 2010 are included in dict
     start, end = 1920, 2021
     bucket_increment = 0
     bucket_dict = defaultdict()
 
-    for low, high in utility.window(range(start, end, bucket_size), 2): 
+    for low, high in utility.window(range(start, end, bucket_size), 2):
         for year in range(low, high):
             bucket_dict[year] = bucket_increment
 
@@ -40,8 +40,8 @@ def interface(ifname, ofname):
             for song in reader:
                 # filter out first line with words in corpus, starts with %
                 if song[0][0] == '%':
-                    continue 
-                
+                    continue
+
                 line = song[3:]
                 year = int(song[0])
                 line.insert(0, year)
@@ -65,7 +65,7 @@ def cli_interface():
 if __name__ == '__main__':
     cli_interface()
 
- 
+
 
 
 

@@ -12,6 +12,7 @@ from sklearn.externals   import joblib
 import pickle
 import utility
 import sys
+import random 
 
 from imblearn.over_sampling import RandomOverSampler
 
@@ -20,34 +21,32 @@ def get_data(song_file):
     """grab data from csv and break into [X, y] list items where X is a dict 
        that represents a song's vector and y is the category of that song"""
 
+    # 1920 always starting zero index, bin size depends on bow_english_year 
+
     song_data = []
     with open(utility.make_resource(song_file)) as fd:
-        song_dict = defaultdict(int)
-        count = 0
+        song_class_dict = defaultdict(int)
+        song_year_dict = defaultdict(int)
 
         for line in csv.reader(fd):
+            song_year = line[0]
+            song_class = line[1]
             song_vector = line[2:]
-            song_decade = line[1]
-
+            
             document = [item.split(':') for item in song_vector]
             X = dict([[int(item[0]), float(item[1])] for item in document])
 
-            song_dict[int(song_decade)] += 1
+            song_class_dict[int(song_class)] += 1
 
-            # filtering out songs from 20s & 30s & 40s
-            if int(song_decade) <= 4:
-                count += 1
-                continue
+            # find year breakdown by song, remove later  
+            song_year_dict[int(song_year)] += 1
 
-            # subracting by 5 to move songs from 50s to zero index
-            y = int(song_decade) - 5
+            song_data.append([X, song_class])
 
-            song_data.append([X, y])
+        print("dict of num of song count by decade: {}".format(song_class_dict))
+        print("dict of by year breakdown count of songs in dataset: {}".format(song_year_dict))
 
-        print("count of songs from 20s, 30s, 40s: {}".format(count))
-        print("dict of num of song count by decade: {}".format(song_dict))
-
-    return song_data
+    return song_data, song_class_dict
 
 
 def chunker(data, size):
@@ -95,10 +94,10 @@ def matrix_func(a_list, dict_length):
     return sparse_matrix
 
 
-def run_NB(train_data_50, dict_length, clf, ovsmpl=False):
+def run_NB(train_data_50, dict_length, clf, target_classes, ovsmpl=False):
     """runs NB on chuncked data using partial_fit"""
 
-    classes = range(7)
+    classes = range(target_classes)
     for idx in range(len(train_data_50)):
         data = train_data_50[idx]
 
@@ -154,7 +153,10 @@ def interface(ifname, dict_pickle, ofname):
         dict_length = len(lookup_dict)
     print("length of lookup dict: {}".format(dict_length))
 
-    song_data = get_data(ifname)
+    song_data, song_class_dict = get_data(ifname)
+    target_classes_len = len(song_class_dict)
+
+    random.shuffle(song_data)
 
     split_num = int(len(song_data) * .75)
     train_data = song_data[:split_num]
@@ -168,14 +170,14 @@ def interface(ifname, dict_pickle, ofname):
 
     # train NB using partial fit
     # add a 4th optional arg to oversample: T/F flag. False is default
-    run_NB(train_data_50, dict_length, clf)
+    run_NB(train_data_50, dict_length, clf, target_classes_len)
 
     # score the model using test data
     # add a 4th optional arg to oversample: T/F flag. False is default
     score(test_data, clf)
 
     # dump model into a pickle file
-    # pickle.dump(clf, open(utility.make_resource(ofname), 'wb'))
+    pickle.dump(clf, open(utility.make_resource(ofname), 'wb'))
 
 
 def cli_interface():

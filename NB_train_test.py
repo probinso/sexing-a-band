@@ -30,7 +30,7 @@ def get_data(song_file):
 
         for line in csv.reader(fd):
             song_year = line[0]
-            song_class = line[1]
+            song_class = int(line[1])
             song_vector = line[2:]
 
             document = [item.split(':') for item in song_vector]
@@ -43,9 +43,10 @@ def get_data(song_file):
 
             song_data.append([X, song_class])
 
-        print("dict of num of song count by decade: {}".format(song_class_dict))
-        print("*" * 50)
-        print("dict of by year breakdown count of songs in dataset: {}".format(song_year_dict))
+        #print("dict of num of song count by decade: {}".format(song_class_dict))
+        #print("*" * 50)
+        #print("dict of by year breakdown count of songs in dataset: {}".format(song_year_dict))
+        #print("length of song data in get data: {}".format(len(song_data)))
 
     return song_data, song_class_dict
 
@@ -88,9 +89,16 @@ def matrix_func(a_list, dict_length):
 
     # loop through each dict in list, and add that dicts values to idx of key in sparse matrix
     for idx, a_dict in enumerate(a_list):
+        #print("idx and dict in matrix_func: {}, {}".format(idx, a_dict))
+
         for key in a_dict.keys():
+            #print("key in a_dict.keys(): {}".format(key))
+            #print("value being passes into sparse matrix: {}".format(a_dict[key]))
             # subtracting 1 from the key because values for words in dict start at 1
             sparse_matrix[idx, key - 1] = a_dict[key]
+
+    #print("type of martix data: {}".format(type(sparse_matrix)))
+    #print("value at index 0 in sparse matrix: {}".format(sparse_matrix[0]))
 
     return sparse_matrix
 
@@ -98,7 +106,7 @@ def matrix_func(a_list, dict_length):
 def run_NB(train_data_50, clf, dict_length, target_classes, ovsmpl=False):
     """runs NB on chuncked data using partial_fit"""
 
-    classes = range(target_classes)
+    classes = [0,1,2,3,4,5,6,7,8]
     for idx in range(len(train_data_50)):
         data = train_data_50[idx]
 
@@ -109,11 +117,14 @@ def run_NB(train_data_50, clf, dict_length, target_classes, ovsmpl=False):
 
         # make song vectors into lil matrix
         X_vec_matrix = matrix_func(X_res, dict_length)
+        #print("size of lil matrix, y_vec in run NB: {}, {}".format(X_vec_matrix.shape, y_res))
+        #print("length of y_vec: {}".format(len(y_res)))
+        #print("type of lil matrix in training: {}".format(type(X_vec_matrix)))
 
-        clf.partial_fit(X_vec_matrix, y_res, classes)
+        clf.partial_fit(X_vec_matrix, y_res, classes=classes)
 
     print("NB model finsihed training")
-    return
+    return clf
 
 
 def score(test_data, clf, dict_length, ovsmpl=False):
@@ -124,14 +135,19 @@ def score(test_data, clf, dict_length, ovsmpl=False):
     else:
         X_res, y_res = sans_oversampling(test_data)
 
-    X_vec_matrix = (X_res, dict_length)
+    X_vec_matrix = matrix_func(X_res, dict_length)
+
+    #print("type of matrix in testing: {}".format(type(X_vec_matrix)))
 
     score = clf.score(X_vec_matrix, y_res)
 
     predictions_dict = defaultdict(int)
     correct_range_pred = 0
     # look at individual prediciton of model wihtin a range and build result dict
-    for idx, item in enumerate(X_res):
+    for idx, item in enumerate(X_vec_matrix):
+        #print("single song matrix in score: {}".format(item))
+        #print(X_vec_matrix[0])
+
         model_out = clf.predict(item)
 
         # remember that 50s is starting decade when looking at results
@@ -141,7 +157,7 @@ def score(test_data, clf, dict_length, ovsmpl=False):
         if int(prediciton_in_range1) < 2:
             correct_range_pred += 1
 
-    predict_percent = correct_range_pred / X_res.shape[0]
+    predict_percent = correct_range_pred / X_vec_matrix.shape[0]
     print("percent correct_pred within +/- 1 decade block {}".format(predict_percent))
     print("score of NB model: {}".format(score))
     print("dict of decades predicted: {}".format(predictions_dict))
@@ -162,8 +178,10 @@ def interface(ifname, dict_pickle, ofname):
     random.shuffle(song_data)
 
     split_num = int(len(song_data) * .75)
+    #print("split num in interface: {}".format(split_num))
     train_data = song_data[:split_num]
     test_data = song_data[split_num:]
+    #print("length of train_data, test_data in interface: {}, {}".format(len(train_data),len(test_data))) 
 
     # chunk data into an array of 50 long examples
     train_data_50 = chunker(train_data, 50)
@@ -173,14 +191,14 @@ def interface(ifname, dict_pickle, ofname):
 
     # train NB using partial fit
     # add a 4th optional arg to oversample: T/F flag. False is default
-    run_NB(train_data_50, clf, dict_length, target_classes_len)
+    trained_clf = run_NB(train_data_50, clf, dict_length, target_classes_len)
 
     # score the model using test data
     # add a 4th optional arg to oversample: T/F flag. False is default
-    #score(test_data, clf, dict_length)
+    score(test_data, trained_clf, dict_length)
 
     # dump model into a pickle file
-    pickle.dump(clf, open(utility.make_resource(ofname), 'wb'))
+    pickle.dump(trained_clf, open(utility.make_resource(ofname), 'wb'))
 
 
 def cli_interface():

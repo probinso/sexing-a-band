@@ -12,7 +12,7 @@ from sklearn.externals   import joblib
 import pickle
 import utility
 import sys
-import random 
+import random
 
 from imblearn.over_sampling import RandomOverSampler
 
@@ -21,7 +21,7 @@ def get_data(song_file):
     """grab data from csv and break into [X, y] list items where X is a dict 
        that represents a song's vector and y is the category of that song"""
 
-    # 1920 always starting zero index, bin size depends on bow_english_year 
+    # 1920 always starting zero index, bin size depends on bow_english_year
 
     song_data = []
     with open(utility.make_resource(song_file)) as fd:
@@ -32,18 +32,19 @@ def get_data(song_file):
             song_year = line[0]
             song_class = line[1]
             song_vector = line[2:]
-            
+
             document = [item.split(':') for item in song_vector]
             X = dict([[int(item[0]), float(item[1])] for item in document])
 
             song_class_dict[int(song_class)] += 1
 
-            # find year breakdown by song, remove later  
+            # find year breakdown by song, remove later
             song_year_dict[int(song_year)] += 1
 
             song_data.append([X, song_class])
 
         print("dict of num of song count by decade: {}".format(song_class_dict))
+        print("*" * 50)
         print("dict of by year breakdown count of songs in dataset: {}".format(song_year_dict))
 
     return song_data, song_class_dict
@@ -77,7 +78,7 @@ def sans_oversampling(data):
 
     # X_new = matrix_func(X_data, dict_length)
 
-    return X_new, y_data
+    return X_data, y_data
 
 
 def matrix_func(a_list, dict_length):
@@ -94,20 +95,20 @@ def matrix_func(a_list, dict_length):
     return sparse_matrix
 
 
-def run_NB(train_data_50, dict_length, clf, target_classes, ovsmpl=False):
+def run_NB(train_data_50, clf, dict_length, target_classes, ovsmpl=False):
     """runs NB on chuncked data using partial_fit"""
 
     classes = range(target_classes)
     for idx in range(len(train_data_50)):
         data = train_data_50[idx]
 
-        if ovsmpl: 
+        if ovsmpl:
             X_res, y_res = oversample_data(data)
-        else: 
+        else:
             X_res, y_res = sans_oversampling(data)
 
         # make song vectors into lil matrix
-        X_vec_matrix = matrix_func(X_res, dict_length) 
+        X_vec_matrix = matrix_func(X_res, dict_length)
 
         clf.partial_fit(X_vec_matrix, y_res, classes)
 
@@ -115,15 +116,17 @@ def run_NB(train_data_50, dict_length, clf, target_classes, ovsmpl=False):
     return
 
 
-def score(test_data, clf, ovsmpl=False):
+def score(test_data, clf, dict_length, ovsmpl=False):
     """score trained model, look at results within +/- 1 decade range"""
 
-    if ovsmpl: 
-        X_res, y_res = oversample_data(data, dict_length)
-    else: 
-        X_res, y_res = sans_oversampling(data, dict_length)
+    if ovsmpl:
+        X_res, y_res = oversample_data(test_data)
+    else:
+        X_res, y_res = sans_oversampling(test_data)
 
-    score = clf.score(X_res, y_res)
+    X_vec_matrix = (X_res, dict_length)
+
+    score = clf.score(X_vec_matrix, y_res)
 
     predictions_dict = defaultdict(int)
     correct_range_pred = 0
@@ -163,18 +166,18 @@ def interface(ifname, dict_pickle, ofname):
     test_data = song_data[split_num:]
 
     # chunk data into an array of 50 long examples
-    train_data_50 = chunker(song_data, 50)
+    train_data_50 = chunker(train_data, 50)
 
     # make instance of NB model
     clf = MultinomialNB(fit_prior=True)
 
     # train NB using partial fit
     # add a 4th optional arg to oversample: T/F flag. False is default
-    run_NB(train_data_50, dict_length, clf, target_classes_len)
+    run_NB(train_data_50, clf, dict_length, target_classes_len)
 
     # score the model using test data
     # add a 4th optional arg to oversample: T/F flag. False is default
-    score(test_data, clf)
+    #score(test_data, clf, dict_length)
 
     # dump model into a pickle file
     pickle.dump(clf, open(utility.make_resource(ofname), 'wb'))

@@ -18,7 +18,7 @@ from imblearn.over_sampling import RandomOverSampler
 
 
 def get_data(song_file):
-    """grab data from csv and break into [X, y] list items where X is a dict 
+    """grab data from csv and break into [X, y] list items where X is a dict
        that represents a song's vector and y is the category of that song"""
 
     # 1920 always starting zero index, bin size depends on bow_english_year
@@ -43,11 +43,6 @@ def get_data(song_file):
 
             song_data.append([X, song_class])
 
-        #print("dict of num of song count by decade: {}".format(song_class_dict))
-        #print("*" * 50)
-        #print("dict of by year breakdown count of songs in dataset: {}".format(song_year_dict))
-        #print("length of song data in get data: {}".format(len(song_data)))
-
     return song_data, song_class_dict
 
 
@@ -63,12 +58,9 @@ def oversample_data(data):
     X_data = [item[0] for item in data]
     y_data = np.array([item[1] for item in data])
 
-    # new = matrix_func(X_data, dict_length)
+    print('length after over_sampling! new_X: {}, new_y: {}'.format(len(X_data), len(y_data)))
 
-    X_res, y_res = ros.fit_sample(X_data.toarray(), y_data)
-    print('length after over_sampling! new_X: {}, new_y: {}'.format(X_res.shape, y_res.shape))
-
-    return X_res, y_res
+    return X_data, y_data
 
 
 def sans_oversampling(data):
@@ -76,8 +68,6 @@ def sans_oversampling(data):
 
     X_data = [item[0] for item in data]
     y_data = np.array([item[1] for item in data])
-
-    # X_new = matrix_func(X_data, dict_length)
 
     return X_data, y_data
 
@@ -89,16 +79,10 @@ def matrix_func(a_list, dict_length):
 
     # loop through each dict in list, and add that dicts values to idx of key in sparse matrix
     for idx, a_dict in enumerate(a_list):
-        #print("idx and dict in matrix_func: {}, {}".format(idx, a_dict))
 
         for key in a_dict.keys():
-            #print("key in a_dict.keys(): {}".format(key))
-            #print("value being passes into sparse matrix: {}".format(a_dict[key]))
             # subtracting 1 from the key because values for words in dict start at 1
             sparse_matrix[idx, key - 1] = a_dict[key]
-
-    #print("type of martix data: {}".format(type(sparse_matrix)))
-    #print("value at index 0 in sparse matrix: {}".format(sparse_matrix[0]))
 
     return sparse_matrix
 
@@ -117,9 +101,6 @@ def run_NB(train_data_50, clf, dict_length, target_classes, ovsmpl=False):
 
         # make song vectors into lil matrix
         X_vec_matrix = matrix_func(X_res, dict_length)
-        #print("size of lil matrix, y_vec in run NB: {}, {}".format(X_vec_matrix.shape, y_res))
-        #print("length of y_vec: {}".format(len(y_res)))
-        #print("type of lil matrix in training: {}".format(type(X_vec_matrix)))
 
         clf.partial_fit(X_vec_matrix, y_res, classes=classes)
 
@@ -137,16 +118,12 @@ def score(test_data, clf, dict_length, ovsmpl=False):
 
     X_vec_matrix = matrix_func(X_res, dict_length)
 
-    #print("type of matrix in testing: {}".format(type(X_vec_matrix)))
-
     score = clf.score(X_vec_matrix, y_res)
 
     predictions_dict = defaultdict(int)
     correct_range_pred = 0
     # look at individual prediciton of model wihtin a range and build result dict
     for idx, item in enumerate(X_vec_matrix):
-        #print("single song matrix in score: {}".format(item))
-        #print(X_vec_matrix[0])
 
         model_out = clf.predict(item)
 
@@ -181,7 +158,6 @@ def interface(ifname, dict_pickle, ofname):
     #print("split num in interface: {}".format(split_num))
     train_data = song_data[:split_num]
     test_data = song_data[split_num:]
-    #print("length of train_data, test_data in interface: {}, {}".format(len(train_data),len(test_data))) 
 
     # chunk data into an array of 50 long examples
     train_data_50 = chunker(train_data, 50)
@@ -191,11 +167,11 @@ def interface(ifname, dict_pickle, ofname):
 
     # train NB using partial fit
     # add a 4th optional arg to oversample: T/F flag. False is default
-    trained_clf = run_NB(train_data_50, clf, dict_length, target_classes_len)
+    trained_clf = run_NB(train_data_50, clf, dict_length, target_classes_len, True)
 
     # score the model using test data
     # add a 4th optional arg to oversample: T/F flag. False is default
-    score(test_data, trained_clf, dict_length)
+    score(test_data, trained_clf, dict_length, True)
 
     # dump model into a pickle file
     pickle.dump(trained_clf, open(utility.make_resource(ofname), 'wb'))

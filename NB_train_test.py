@@ -123,7 +123,7 @@ def score(test_data, clf, dict_length):
         # remember that 20s is starting decade when looking at results
         predictions_dict[model_out[0]] += 1
 
-        prediciton_in_range1 = abs(y_res[idx] - model_out[0])
+        prediciton_in_range1 = abs(y_vec[idx] - model_out[0])
         if int(prediciton_in_range1) < 2:
             correct_range_pred += 1
 

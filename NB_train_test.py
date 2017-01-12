@@ -51,12 +51,18 @@ def chunker(data, size):
     return ([data[pos:pos + size] for pos in range(0, len(data), size)])
 
 
-def oversample_data(data):
+def oversample_data(data, dict_length):
     """helper func to oversample data"""
     ros = RandomOverSampler(random_state=42)
 
     X_data = [item[0] for item in data]
     y_data = np.array([item[1] for item in data])
+
+    ros = RandomOverSampler(random_state=42)
+
+    X_matrix = matrix_func(X_data, dict_length)
+
+    X_data, y_data = ros.fit_sample(X_matrix.toarray(), y_data)
 
     print('length after over_sampling! new_X: {}, new_y: {}'.format(len(X_data), len(y_data)))
 
@@ -95,12 +101,12 @@ def run_NB(train_data_50, clf, dict_length, target_classes, ovsmpl=False):
         data = train_data_50[idx]
 
         if ovsmpl:
-            X_res, y_res = oversample_data(data)
+            X_vec_matrix, y_res = oversample_data(data, dict_length)
         else:
             X_res, y_res = sans_oversampling(data)
 
         # make song vectors into lil matrix
-        X_vec_matrix = matrix_func(X_res, dict_length)
+        #X_vec_matrix = matrix_func(X_res, dict_length)
 
         clf.partial_fit(X_vec_matrix, y_res, classes=classes)
 
@@ -112,7 +118,7 @@ def score(test_data, clf, dict_length, ovsmpl=False):
     """score trained model, look at results within +/- 1 decade range"""
 
     if ovsmpl:
-        X_res, y_res = oversample_data(test_data)
+        X_vec_matrix, y_res = oversample_data(test_data, dict_length)
     else:
         X_res, y_res = sans_oversampling(test_data)
 
@@ -163,15 +169,15 @@ def interface(ifname, dict_pickle, ofname):
     train_data_50 = chunker(train_data, 50)
 
     # make instance of NB model
-    clf = MultinomialNB(fit_prior=True)
+    clf = MultinomialNB(alpha=0.000001)
 
     # train NB using partial fit
     # add a 4th optional arg to oversample: T/F flag. False is default
-    trained_clf = run_NB(train_data_50, clf, dict_length, target_classes_len, True)
+    trained_clf = run_NB(train_data_50, clf, dict_length, target_classes_len)
 
     # score the model using test data
     # add a 4th optional arg to oversample: T/F flag. False is default
-    score(test_data, trained_clf, dict_length, True)
+    score(test_data, trained_clf, dict_length)
 
     # dump model into a pickle file
     pickle.dump(trained_clf, open(utility.make_resource(ofname), 'wb'))

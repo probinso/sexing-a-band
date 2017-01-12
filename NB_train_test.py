@@ -43,6 +43,9 @@ def get_data(song_file):
 
             song_data.append([X, song_class])
 
+    print("song class count dict: {}".format(song_class_dict))
+    print("song year count dict: {}".format(song_year_dict))
+
     return song_data, song_class_dict
 
 
@@ -51,31 +54,21 @@ def chunker(data, size):
     return ([data[pos:pos + size] for pos in range(0, len(data), size)])
 
 
-def oversample_data(data, dict_length):
-    """helper func to oversample data"""
-    ros = RandomOverSampler(random_state=42)
+def data_prep(data, dict_length, ovsmpl=False):
+    """turn data into a lil_matrix with switch to apply oversampling"""
 
     X_data = [item[0] for item in data]
     y_data = np.array([item[1] for item in data])
-
-    ros = RandomOverSampler(random_state=42)
 
     X_matrix = matrix_func(X_data, dict_length)
 
-    X_data, y_data = ros.fit_sample(X_matrix.toarray(), y_data)
+    if ovsmpl: 
+        ros = RandomOverSampler(random_state=42)
+        X_out, y_out = ros.fit_sample(X_matrix.toarray(), y_data)
+        return X_out, y_out
 
-    print('length after over_sampling! new_X: {}, new_y: {}'.format(len(X_data), len(y_data)))
-
-    return X_data, y_data
-
-
-def sans_oversampling(data):
-    """helper func for non oversampled data"""
-
-    X_data = [item[0] for item in data]
-    y_data = np.array([item[1] for item in data])
-
-    return X_data, y_data
+    else: 
+        return X_matrix, y_data
 
 
 def matrix_func(a_list, dict_length):
@@ -93,47 +86,41 @@ def matrix_func(a_list, dict_length):
     return sparse_matrix
 
 
-def run_NB(train_data_50, clf, dict_length, target_classes, ovsmpl=False):
+def run_NB(train_data_50, clf, dict_length, target_classes):
     """runs NB on chuncked data using partial_fit"""
 
-    classes = [0,1,2,3,4,5,6,7,8]
+    classes = range(target_classes)
+    print("length of classes in run NB: {}".format(classes))
+
     for idx in range(len(train_data_50)):
         data = train_data_50[idx]
 
-        if ovsmpl:
-            X_vec_matrix, y_res = oversample_data(data, dict_length)
-        else:
-            X_res, y_res = sans_oversampling(data)
+        # pass in a 3rd optional arg as "True" to turn oversampling on
+        X_vec_matrix, y_vec = data_prep(data, dict_length)
 
-        # make song vectors into lil matrix
-        #X_vec_matrix = matrix_func(X_res, dict_length)
-
-        clf.partial_fit(X_vec_matrix, y_res, classes=classes)
+        clf.partial_fit(X_vec_matrix, y_vec, classes=classes)
 
     print("NB model finsihed training")
     return clf
 
 
-def score(test_data, clf, dict_length, ovsmpl=False):
+def score(test_data, clf, dict_length):
     """score trained model, look at results within +/- 1 decade range"""
 
-    if ovsmpl:
-        X_vec_matrix, y_res = oversample_data(test_data, dict_length)
-    else:
-        X_res, y_res = sans_oversampling(test_data)
+    # pass in a 3rd optional arg as "True" to turn oversampling on 
+    # oversampling in testing currently leads to memory error due to size of input 
+    X_vec_matrix, y_vec = data_prep(test_data, dict_length)
 
-    X_vec_matrix = matrix_func(X_res, dict_length)
+    score = clf.score(X_vec_matrix, y_vec)
 
-    score = clf.score(X_vec_matrix, y_res)
-
+    # look at individual prediciton of model wihtin a range and build result dict
     predictions_dict = defaultdict(int)
     correct_range_pred = 0
-    # look at individual prediciton of model wihtin a range and build result dict
     for idx, item in enumerate(X_vec_matrix):
 
         model_out = clf.predict(item)
 
-        # remember that 50s is starting decade when looking at results
+        # remember that 20s is starting decade when looking at results
         predictions_dict[model_out[0]] += 1
 
         prediciton_in_range1 = abs(y_res[idx] - model_out[0])
@@ -155,13 +142,13 @@ def interface(ifname, dict_pickle, ofname):
         dict_length = len(lookup_dict)
     print("length of lookup dict: {}".format(dict_length))
 
+    # read and prep data from csv 
     song_data, song_class_dict = get_data(ifname)
-    target_classes_len = len(song_class_dict)
-
+    
+    # shuffle and split train/test data 
     random.shuffle(song_data)
-
     split_num = int(len(song_data) * .75)
-    #print("split num in interface: {}".format(split_num))
+    
     train_data = song_data[:split_num]
     test_data = song_data[split_num:]
 
@@ -172,7 +159,7 @@ def interface(ifname, dict_pickle, ofname):
     clf = MultinomialNB(alpha=0.000001)
 
     # train NB using partial fit
-    # add a 4th optional arg to oversample: T/F flag. False is default
+    target_classes_len = len(song_class_dict)
     trained_clf = run_NB(train_data_50, clf, dict_length, target_classes_len)
 
     # score the model using test data

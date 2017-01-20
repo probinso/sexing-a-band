@@ -12,8 +12,8 @@ check_resource: resource.json
 	echo $$(( $(COUNT) + 0 ))
 
 bow_english_year.csv: $(RSRC)/bow_english_year.csv
-$(RSRC)/bow_english_year.csv: $(RSRC)/bow_english.csv year_dict.py
-	$(engine) year_dict.py bow_english.csv bow_english_year.csv
+$(RSRC)/bow_english_year.csv: $(RSRC)/bow_english.csv year_bin_maker.py
+	$(engine) year_bin_maker.py bow_english.csv bow_english_year.csv
 
 bow_english.csv:$(RSRC)/bow_english.csv
 $(RSRC)/bow_english.csv:bow_to_english.py bow_runner.csv
@@ -39,7 +39,7 @@ $(RSRC)/only_tfidf.csv: make_tfidf_score.py full_tfidf_model.tfidf bow_english_y
 
 
 NB_model.pkl:$(RSRC)/NB_model.pkl
-$(RSRC)/NB_model.pkl:NB_tfidf.py only_tfidf.csv
+$(RSRC)/NB_model.pkl:NB_train_test.py only_tfidf.csv
 	$(engine) NB_train_test.py only_tfidf.csv word_lookup.pkl NB_model.pkl
 
 

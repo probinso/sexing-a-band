@@ -43,8 +43,8 @@ def get_data(song_file):
 
             song_data.append([X, song_class])
 
-    print("song class count dict: {}".format(song_class_dict))
-    print("song year count dict: {}".format(song_year_dict))
+    print("song class count dict: {}".format(song_class_dict), file=sys.stderr)
+    print("song year count dict: {}".format(song_year_dict),   file=sys.stderr)
 
     return song_data, song_class_dict
 
@@ -92,9 +92,7 @@ def run_NB(train_data_50, clf, dict_length, target_classes):
     classes = range(target_classes)
     print("length of classes in run NB: {}".format(classes))
 
-    for idx in range(len(train_data_50)):
-        data = train_data_50[idx]
-
+    for data in train_data_50:
         # pass in a 3rd optional arg as "True" to turn oversampling on
         X_vec_matrix, y_vec = data_prep(data, dict_length)
 

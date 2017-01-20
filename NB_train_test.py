@@ -176,7 +176,7 @@ def cli_interface():
     try:
         ifname, dict_pickle, ofname = sys.argv[1], sys.argv[2], sys.argv[3]
     except:
-        print("usage: {}  <inpath> <outpath>".format(sys.argv[0]))
+        print("usage: {}  <inpath> <dict_pickle> <outpath>".format(sys.argv[0]))
         sys.exit(1)
     interface(ifname, dict_pickle, ofname)
 

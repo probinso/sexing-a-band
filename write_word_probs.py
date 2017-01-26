@@ -6,8 +6,8 @@ import pickle
 import sys
 from sklearn.externals import joblib
 from scipy.sparse import lil_matrix
-import utility 
-import lyrics_to_bow
+import utility
+from lyrics_to_bow import lyrics_to_bow
 
 
 def make_stemmed_dict(data):
@@ -24,11 +24,11 @@ def conv_stem_dict(a_dict, word_lookup_dict):
     num_word_feat = len(word_lookup_dict.keys())
 
     out_dict = {}
-    for word in a_dict.keys():            
+    for word in a_dict.keys():
         try:
             out_dict[word_lookup_dict[word]] = a_dict[word]
         except:
-            # word not in lookup dict during training 
+            # word not in lookup dict during training
             continue
     return out_dict, num_word_feat
 

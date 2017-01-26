@@ -83,10 +83,10 @@ def lyrics_to_bow(lyrics):
         elif bw.find('[') >= 0:
             bow.pop(bw)
     # not big enough? remove instrumental ones among others
-    if len(bow) <= 3:
-        return None
-    # done
-    return bow
+    # if len(bow) <= 3:
+    #     return None
+    # # done
+    # return bow
 
 
 

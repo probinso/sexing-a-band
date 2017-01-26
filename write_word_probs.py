@@ -7,12 +7,7 @@ import sys
 from sklearn.externals import joblib
 from scipy.sparse import lil_matrix
 import utility
-from lyrics_to_bow import lyrics_to_bow
 
-
-def make_stemmed_dict(data):
-    stemmed_data = lyrics_to_bow(data)
-    return stemmed_data if stemmed_data is not None else {}
 
 def conv_stem_dict(a_dict, word_lookup_dict):
     """
@@ -28,7 +23,7 @@ def conv_stem_dict(a_dict, word_lookup_dict):
         try:
             out_dict[word_lookup_dict[word]] = a_dict[word]
         except:
-            print("word not found in dict")
+            sys.exit("word not in dict, dict func failed on: {}".format(a_dict))
             # word not in lookup dict during training
             continue
     return out_dict, num_word_feat
@@ -69,9 +64,10 @@ def data_prep_helper(word, word_lookup_dict, tfidf_model):
     and then finally turn dict into a list of list matrix to mirror
     data prep in the training process.
     """
-    stem_dict = make_stemmed_dict(word)
+    # need to turn word into dict to match format
+    word_dict = {word: 1}
 
-    word_num_dict, num_word_feat = conv_stem_dict(stem_dict, word_lookup_dict)
+    word_num_dict, num_word_feat = conv_stem_dict(word_dict, word_lookup_dict)
 
     tfidf_dict = tfidf_transform_stemmed_dict(word_num_dict, tfidf_model)
 

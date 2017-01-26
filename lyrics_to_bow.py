@@ -86,7 +86,7 @@ def lyrics_to_bow(lyrics):
     # if len(bow) <= 3:
     #     return None
     # # done
-    # return bow
+    return bow
 
 
 

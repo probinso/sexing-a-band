@@ -18,7 +18,7 @@ def conv_stem_dict(a_dict, word_lookup_dict):
     """
     converts stemmed dict output into {word_num: count} format
     where word_num maps to a word's key in lookup dict from model training.
-    returns empty dict if word wasn't seen during model training. 
+    returns empty dict if word wasn't seen during model training.
     also return length of word_lookup_dict used later in data transform
     """
     num_word_feat = len(word_lookup_dict.keys())
@@ -28,13 +28,14 @@ def conv_stem_dict(a_dict, word_lookup_dict):
         try:
             out_dict[word_lookup_dict[word]] = a_dict[word]
         except:
+            print("word not found in dict")
             # word not in lookup dict during training
             continue
     return out_dict, num_word_feat
 
 def tfidf_transform_stemmed_dict(word_num_dict, tfidf_model):
     """
-    turn dict into a dict of word_keys: tfidf_scores using trained tfidf model 
+    turn dict into a dict of word_keys: tfidf_scores using trained tfidf model
     """
     song_tfidf = tfidf_model[word_num_dict.items()]
 
@@ -46,27 +47,27 @@ def tfidf_transform_stemmed_dict(word_num_dict, tfidf_model):
 
 def tfidf_dict_to_matrix(tfidf_dict, num_word_feat):
     """
-    create a lil_matrix out of tfidf_dict so it matches format used in training 
+    create a lil_matrix out of tfidf_dict so it matches format used in training
     """
     list_of_dicts = [tfidf_dict]
 
-    # create a list of list matrix of the appropriate size 
+    # create a list of list matrix of the appropriate size
     sparse_matrix = lil_matrix((len(list_of_dicts), num_word_feat))
 
-    # loop thorugh each dict and add its values to appropriate matrix 
-    for idx, a_dict in enumerate(list_of_dicts):        
+    # loop thorugh each dict and add its values to appropriate matrix
+    for idx, a_dict in enumerate(list_of_dicts):
         for key in a_dict.keys():
             # subtracting 1 from the key because values in dict start at 1
-            # assign value at the index that matches word in matrix 
+            # assign value at the index that matches word in matrix
             sparse_matrix[idx, key - 1] = a_dict[key]
     return sparse_matrix
 
 def data_prep_helper(word, word_lookup_dict, tfidf_model):
     """
-    handle the data prep of stemming a word, mapping word to lookup dict 
+    handle the data prep of stemming a word, mapping word to lookup dict
     used in training, converting that dict using pre-trained tfidf model,
-    and then finally turn dict into a list of list matrix to mirror 
-    data prep in the training process.  
+    and then finally turn dict into a list of list matrix to mirror
+    data prep in the training process.
     """
     stem_dict = make_stemmed_dict(word)
 
@@ -85,47 +86,51 @@ def load_NB_model(NB_model_pkl):
     with open(utility.make_resource(NB_model_pkl), "rb") as fo:
         clf = joblib.load(fo)
 
-    return clf 
+    return clf
 
 def load_word_lookup_dict(word_lookup_pkl):
     """
-    load word lookup dict used in training and return the dict, 
-    list of all words in dict, and num of words in dict 
+    load word lookup dict used in training and return the dict,
+    list of all words in dict, and num of words in dict
     """
     with open(utility.make_resource(word_lookup_pkl), "rb") as f:
         dict_obj = pickle.load(f)
         words_in_dict = dict_obj.keys()
 
     return dict_obj, words_in_dict
-    
+
 def interface(word_lookup_pkl, tfidf_model_pkl, NB_model_pkl, out_file):
     """
     load all models and pkl files, loop thorough each word in training lookup dict,
-    get probability scores for each word for all decades, write word and scores out 
-    to csv. 
+    get probability scores for each word for all decades, write word and scores out
+    to csv.
     """
     loaded_dict, words_in_dict = load_word_lookup_dict(word_lookup_pkl)
     loaded_NB_model = load_NB_model(NB_model_pkl)
     loaded_tfidf_model = gensim.models.TfidfModel.load(utility.make_resource(tfidf_model_pkl))
 
-    with open(utility.make_resource(out_file), 'w') as of:
+    with open(utility.make_resource(out_file), "w") as of:
+        header_line = list(range(9))
+        header_line.insert(0, "word")
+        print(",".join(map(str, header_line)), file=of)
+
         for word in words_in_dict:
-            prepped_word_data = data_prep_helper(word, loaded_dict, loaded_tfidf_model) 
+            prepped_word_data = data_prep_helper(word, loaded_dict, loaded_tfidf_model)
 
             decade_probs = loaded_NB_model.predict_proba(prepped_word_data[0].toarray())[0]
             probs_list = [str(score) for score in decade_probs]
-            
-            if probs_list: 
+
+            if probs_list:
                 probs_list.insert(0, word)
-                print(','.join(probs_list), file=of)
-    
+                print(",".join(probs_list), file=of)
+
 def cli_interface():
     """
     by convention it is helpful to have a wrapper_cli method that interfaces
     from commandline to function space.
     """
     try:
-        word_lookup_dict, tfidf_model = sys.argv[1], sys.argv[2] 
+        word_lookup_dict, tfidf_model = sys.argv[1], sys.argv[2]
         NB_model, out_file = sys.argv[3], sys.argv[4]
     except:
         print("usage: {} <dict_pickle> <tfidf_model> <NB_model> <outpath>".format(sys.argv[0]))

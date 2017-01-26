@@ -62,12 +62,12 @@ def data_prep(data, dict_length, ovsmpl=False):
 
     X_matrix = matrix_func(X_data, dict_length)
 
-    if ovsmpl: 
+    if ovsmpl:
         ros = RandomOverSampler(random_state=42)
         X_out, y_out = ros.fit_sample(X_matrix.toarray(), y_data)
         return X_out, y_out
 
-    else: 
+    else:
         return X_matrix, y_data
 
 
@@ -89,7 +89,7 @@ def matrix_func(a_list, dict_length):
 def run_NB(train_data_50, clf, dict_length, target_classes):
     """runs NB on chuncked data using partial_fit"""
 
-    classes = range(target_classes)
+    classes = list(range(target_classes))
     print("length of classes in run NB: {}".format(classes))
 
     for data in train_data_50:
@@ -105,8 +105,8 @@ def run_NB(train_data_50, clf, dict_length, target_classes):
 def score(test_data, clf, dict_length):
     """score trained model, look at results within +/- 1 decade range"""
 
-    # pass in a 3rd optional arg as "True" to turn oversampling on 
-    # oversampling in testing currently leads to memory error due to size of input 
+    # pass in a 3rd optional arg as "True" to turn oversampling on
+    # oversampling in testing currently leads to memory error due to size of input
     X_vec_matrix, y_vec = data_prep(test_data, dict_length)
 
     score = clf.score(X_vec_matrix, y_vec)
@@ -140,13 +140,13 @@ def interface(ifname, dict_pickle, ofname):
         dict_length = len(lookup_dict)
     print("length of lookup dict: {}".format(dict_length))
 
-    # read and prep data from csv 
+    # read and prep data from csv
     song_data, song_class_dict = get_data(ifname)
-    
-    # shuffle and split train/test data 
+
+    # shuffle and split train/test data
     random.shuffle(song_data)
     split_num = int(len(song_data) * .75)
-    
+
     train_data = song_data[:split_num]
     test_data = song_data[split_num:]
 
@@ -154,7 +154,7 @@ def interface(ifname, dict_pickle, ofname):
     train_data_50 = chunker(train_data, 50)
 
     # make instance of NB model
-    clf = MultinomialNB(alpha=0.000001)
+    clf = MultinomialNB()
 
     # train NB using partial fit
     target_classes_len = len(song_class_dict)

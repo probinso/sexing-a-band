@@ -1,61 +1,47 @@
-# sexing-a-band
-# aging-a-band
-
-1. `soung_data_prep.py` generates **data/full_output.csv** containing **track_id**, **artist_id**, **track_year**, **word_counts**
-2. `topic_maker_tfidf.py` processes over **data/full_output.csv** and **mxm_dataset_train.csv** and saves the
-    * **tfidf** to **full_tfidf_model.tfidf**
-    * **sli model** to **data/full_song_topics_tfidif.lsi**
-3. `train_data_tfidf.py` loads the above two model files, then steps through **data/full_output.csv** to produce **full_output_tfidf.csv**
-
----
+# sexing-a-band & aging-a-band
 
 Team: Vikingkitty; Zak Kent; Probiso
 
-Using the databases listed below to predict the year in which a song was written based on a LSI model.
-Stretch goal is to then predict gender of artist based on the same LSI model.
+## Project description 
+This is a project where Multinomial Naive Bayes is used with TF-IDF to create a model that predicts the age of a song by looking only at the lyrics it contains.
 
-http://labrosa.ee.columbia.edu/millionsong/sites/default/files/AdditionalFiles/track_metadata.db - link to metadata DB
+## Explanation  of data pipeline in project 
+ - Convert song lyrics into bag of words format
+ - Create a TF-IDF model using entire corpus
+ - Transform each song into a TF-IDF weighted vector 
+ - TF-IDF normalized song vectors are then used in training a Multinomial Naive Bayes model where time blocks are used as classes
+ - When making a new prediction with unseen data repeat the processing steps above and feed TF-IDF song vector into pre-trained Naive Bayes model
 
+## Song data used in project
+We originally started this project by working with an open source collection of song lyrics data that was part of the Million Song Dataset. This dataset was an ideal starting point because it had song lyrics stemmed and preprocessed into a bag of words format. In the end we decided to move away from this dataset and gather our own data. We decided to do this because to Million Song Dataset only contained the 5,000 most common words across all songs. While looking at these words was interesting we felt that looking at a larger number of words could help us identify trends in language use more easily and with greater variety. Links to the original dataset we used can be found below.    
 
-http://labrosa.ee.columbia.edu/millionsong/sites/default/files/AdditionalFiles/mxm_dataset.db - link to bag of words DB
+[Million_song_meta_data](http://labrosa.ee.columbia.edu/millionsong/sites/default/files/AdditionalFiles/track_metadata.db) - link to metadata DB
 
+[Million_song_project_BOW_data](http://labrosa.ee.columbia.edu/millionsong/sites/default/files/AdditionalFiles/mxm_dataset.db) - link to bag of words DB
 
-Rough guide to running scripts
+	   	    
+# Makefile commands available 
+Below is a brief description of each Make file command that is available and the input that it requires. The commands are written in order and recreate the process that we used to build this project. 
 
-    1. make output csv using orm.py
-	orm.py:
-	    - makes pony mapping for meta_db and word_db
-	    - writes track_id, year, and BOW dict in key:value format to output csv
-	    - need to add mxm_dataset_test.txt to (line 46) to capture test data as well as train split
+The ```make all``` command will run all of the commands you see below and recreate this project on your own computer. Be warned that in its current state these commands include the data scraping process which took roughly two days to complete. 
 
-	    - ? 237,662 songs supposed to be in whole dataset our model was training on 152,827
-	    - ? how many exceptions are happening in try/except block, are we loosing data (line 62)
+### make bow_runner.csv
+This csv file is made by using ```scrape.py```, this file takes a list of song tracks from the ```tracks_per_year.txt``` file and scrapes different lyrics sharing sites to gathering lyrics for the songs. When the songs are scraped their lyrics are converted into a bag of words format.
 
-    2. run topic_maker_tfidf.py to train lsi model
-	# script is basically the same as topic_maker.py except tfidf is added
+### make bow_english.csv
+This csv is created by the ```bow_to_english.py``` file and takes ```bow_runner.csv``` as input. Its purpose is to filter out and keep only those songs that are made up of mostly english words. 
 
-	topic_maker_tfidf.py:
-	    - takes top 5000 most common words and makes lookup dict for words
-	    - pulls data out of output.csv and makes a list of list with each song represted by BOW counts
-	    - trains tfidf model with list of lists above
-	    - converts list of lists BOW to tfidf scores
-	    - trains LSI using scores from above
-	    - saves lsi model
+### make word_lookup.pkl 
+This pickle file is create using the ```savedict.py``` script and takes ```bow_english.csv``` as input. This file is created in order to save a lookup dictionary that is needed when our model is being tested against songs it hasn't seen before. Each word in a new song mush be matched to the same number value that was used to represent words when training the model.  
 
-	    - ? we're opening mxm_dataset_train again to make another lookup dict, I think this was done in orm.py (line 8)
-	    - ? still need to find a way to include both train/test .txt files
-	    - ? Hobs suggested that we lower our number of topics in LSI to 50 because we only have a 5,000 dim space, we might get more meaningful topics this way.
+### make bow_english_year.csv
+This csv is created by the ```year_bin_maker.py``` file and takes the ```bow_english.csv``` as input. This step is done in order to create bins or categories for different time periods in which songs were written. These bins can be adjusted inside the script and give a user the ability to control the size of the time period the model is trying to predict. 
 
-    3. run train_data_tfidf.py to convert data to format used in training our models
-	train_data_tfidf.py:
-	    - loads models trained in step #2
-	    - loops through output.csv from step #1
-	    - in loop converts BOW into lsi topic vectors using loaded models and calculates decade of song
-	    - writes each songs' id, year, decade #, topic_vector to output_tfidf.csv
+### make full_tfidf_model.tfidf
+This file is created by the ```topic_maker_tfidf.py``` script and takes ```bow_english.csv``` as input. The purpose of this step is to create a TFIDF model based on all of the songs in our collection. TF-IDF is a normalization/weighting process that helps to figure out how important each word is to the meaning of a song.
 
-    4. run lyrics_naive_bayes.py to train GaussianNB with data prepared above
-	lyrics_naive_bayes.py:
-	    - loads data from output_tfidf.csv
-	    - splits data into train/test split and trains NB
+### make only_tfidf.csv
+This csv is create by the ```make_tfidf_score.py``` file and takes ```bow_english_year.csv``` & ```full_tfidf_model.tfidf``` as input. This is where each songs' bag or words are converted to a TF-IDF vector using the model trained in the step above. 
 
-	    - ? we can look at learning class probabilites to help our models increase their accuracy, not sure if this is cheating or not:)
+### make NB_model.pkl
+This file is created by running the ```NB_train_test.py``` script and takes ```only_tfidf.csv``` & ```word_lookup.pkl``` as input. In our project we used a simple Naive Bayes model which looks at the conditional probability of each word in a song given a certain time period, blends those probabilities across all the words present, and gives us the probability that a song is from one time period or another given the words it contains. We then save this model in a .pkl file so it can be reused to make predictions on unseen data.
